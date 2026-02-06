@@ -173,9 +173,12 @@ function App() {
 
   return (
     <>
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={handleClearFile}>Clear file</button>
+      </div>
       <SimpleGoban
         signMap={currentBoard.signMap}
-        cellSize={30}
+        cellSize={50}
         ghostSign={displaySign}
         onVertexClick={handleVertexClick}
       />
@@ -204,9 +207,6 @@ function App() {
         {mode === 'recalling' && (
           <button onClick={handleCheck}>Check</button>
         )}
-      </div>
-      <div>
-        <button onClick={handleClearFile}>Clear file</button>
       </div>
       {checkReport && (
         <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
