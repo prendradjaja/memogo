@@ -161,11 +161,13 @@ function App() {
             <span style={{ color: 'green', fontWeight: 'bold' }}>On track</span>
           ) : (
             <>
+              {/*
               <div>
                 <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkStart) }} style={{ color: 'inherit' }}>
                   {checkReport.forkStart}
                 </a> - Fork starts
               </div>
+              */}
               <div style={{ color: 'red' }}>
                 <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.divergence!) }} style={{ color: 'red' }}>
                   {checkReport.divergence}
