@@ -164,6 +164,10 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [mode, fork, boards.length])
 
+  const cellSize = 50
+  const boardCols = currentBoard.signMap[0].length
+  const boardWidth = (boardCols - 1) * cellSize + cellSize
+
   if (!sgfText) return (
     <div>
       <input type="file" accept=".sgf" onChange={(e) => { const f = e.target.files?.[0]; if (f) loadFile(f) }} />
@@ -178,7 +182,7 @@ function App() {
       </div>
       <SimpleGoban
         signMap={currentBoard.signMap}
-        cellSize={50}
+        cellSize={cellSize}
         ghostSign={displaySign}
         onVertexClick={handleVertexClick}
       />
@@ -190,7 +194,7 @@ function App() {
             max={boards.length - 1}
             value={moveIndex}
             onChange={(e) => setMoveIndex(Number(e.target.value))}
-            style={{ width: '500px' }}
+            style={{ width: `${boardWidth}px` }}
           />
         ) : (
           <input
@@ -199,7 +203,7 @@ function App() {
             max={boards.length - 1}
             value={Math.min(forkIndex, boards.length - 1)}
             onChange={(e) => setForkIndex(Math.min(Number(e.target.value), fork!.length))}
-            style={{ width: '500px' }}
+            style={{ width: `${boardWidth}px` }}
           />
         )}
       </div>
