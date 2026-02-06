@@ -31,7 +31,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, ghostSign, onVerte
   const hoverRef = useRef<{ x: number; y: number } | null>(null)
   const rows = signMap.length
   const cols = signMap[0].length
-  const padding = cellSize / 2
+  const padding = cellSize * 0.6
   const width = (cols - 1) * cellSize + padding * 2
   const height = (rows - 1) * cellSize + padding * 2
 
