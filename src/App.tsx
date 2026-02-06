@@ -35,6 +35,7 @@ function extractMoves(rootNode: SgfNode): { sign: 1 | -1; vertex: [number, numbe
 function App() {
   const [sgfText, setSgfText] = useState<string | null>(null)
   const [moveIndex, setMoveIndex] = useState(0)
+  const [customBoard, setCustomBoard] = useState<Board | null>(null)
 
   useEffect(() => {
     fetch('/example.sgf')
@@ -53,20 +54,34 @@ function App() {
     return result
   }, [sgfText])
 
+  const currentBoard = customBoard ?? boards[moveIndex]
+
+  const handleVertexClick = (x: number, y: number) => {
+    const board = customBoard ?? boards[moveIndex]
+    if (board.get([x, y]) !== 0) return
+    setCustomBoard(board.makeMove(1, [x, y]))
+  }
+
   if (!sgfText) return <>Loading...</>
 
   return (
     <>
-      <SimpleGoban signMap={boards[moveIndex].signMap} cellSize={30} />
-      <br/>
-      <input
-        type="range"
-        min={0}
-        max={boards.length - 1}
-        value={moveIndex}
-        onChange={(e) => setMoveIndex(Number(e.target.value))}
-        style={{ width: '500px' }}
+      <SimpleGoban
+        signMap={currentBoard.signMap}
+        cellSize={30}
+        onVertexClick={handleVertexClick}
       />
+      <br/>
+      {!customBoard && (
+        <input
+          type="range"
+          min={0}
+          max={boards.length - 1}
+          value={moveIndex}
+          onChange={(e) => setMoveIndex(Number(e.target.value))}
+          style={{ width: '500px' }}
+        />
+      )}
     </>
   )
 }

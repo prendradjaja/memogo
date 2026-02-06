@@ -22,9 +22,10 @@ function getStarPoints(size: number): [number, number][] {
 interface SimpleGobanProps {
   signMap: SignMap
   cellSize?: number
+  onVertexClick?: (x: number, y: number) => void
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30 }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, onVertexClick }: SimpleGobanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
   const cols = signMap[0].length
@@ -86,5 +87,15 @@ export default function SimpleGoban({ signMap, cellSize = 30 }: SimpleGobanProps
     }
   }, [signMap, cellSize, rows, cols, padding, width, height])
 
-  return <canvas ref={canvasRef} width={width} height={height} />
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onVertexClick) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = Math.round((e.clientX - rect.left - padding) / cellSize)
+    const y = Math.round((e.clientY - rect.top - padding) / cellSize)
+    if (x >= 0 && x < cols && y >= 0 && y < rows) {
+      onVertexClick(x, y)
+    }
+  }
+
+  return <canvas ref={canvasRef} width={width} height={height} onClick={handleClick} />
 }
