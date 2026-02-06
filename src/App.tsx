@@ -150,9 +150,8 @@ function App() {
         onVertexClick={handleVertexClick}
       />
       <div>
-        Next: {displaySign === 1 ? 'Black' : 'White'}
         {mode === 'recalling' && (
-          <>{' '}<button onClick={handleCheck}>Check</button></>
+          <button onClick={handleCheck}>Check</button>
         )}
       </div>
       {checkReport && (
