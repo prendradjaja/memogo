@@ -99,9 +99,8 @@ function App() {
 
   const dummyBoard = Board.fromDimensions(19)
 
-  const hasDiverged = fork != null && (
-    fork.length !== moves.length ||
-    fork.some((m, i) => m.vertex[0] !== moves[i]?.vertex[0] || m.vertex[1] !== moves[i]?.vertex[1] || m.sign !== moves[i]?.sign)
+  const hasDiverged = fork != null && fork.some((m, i) =>
+    !moves[i] || m.vertex[0] !== moves[i].vertex[0] || m.vertex[1] !== moves[i].vertex[1] || m.sign !== moves[i].sign
   )
 
   if (!sgfText) return <>Loading...</>
