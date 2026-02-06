@@ -48,7 +48,7 @@ function App() {
   const [moveIndex, setMoveIndex] = useState(0)
   const [fork, setFork] = useState<Move[] | null>(null)
   const [forkIndex, setForkIndex] = useState(0)
-  const [showCheck, setShowCheck] = useState(false)
+  const [checkReport, setCheckReport] = useState<{ forkStart: number; divergence: number | null; forkEnd: number } | null>(null)
 
   const mode: 'viewing' | 'recalling' = fork ? 'recalling' : 'viewing'
 
@@ -85,7 +85,7 @@ function App() {
 
   const handleVertexClick = (x: number, y: number) => {
     if (currentBoard.get([x, y]) !== 0) return
-    setShowCheck(false)
+    setCheckReport(null)
     const newMove: Move = { sign: displaySign, vertex: [x, y] }
     if (mode === 'recalling') {
       const newFork = [...fork!.slice(0, forkIndex), newMove]
@@ -98,15 +98,27 @@ function App() {
     }
   }
 
-  const hasDiverged = fork != null && fork.some((m, i) =>
-    !moves[i] || m.vertex[0] !== moves[i].vertex[0] || m.vertex[1] !== moves[i].vertex[1] || m.sign !== moves[i].sign
-  )
+  const handleCheck = () => {
+    if (!fork) return
+    // Find where fork starts (first move index that's part of the fork, i.e. 0)
+    // Fork start is the number of shared prefix moves with the original
+    // Actually fork always starts from move 0, but the interesting number is
+    // where the user branched off from viewing
+    const forkStart = 1 // move 1 (first move in fork)
+    let divergence: number | null = null
+    for (let i = 0; i < fork.length; i++) {
+      if (!moves[i] || fork[i].vertex[0] !== moves[i].vertex[0] || fork[i].vertex[1] !== moves[i].vertex[1] || fork[i].sign !== moves[i].sign) {
+        divergence = i + 1
+        break
+      }
+    }
+    setCheckReport({ forkStart, divergence, forkEnd: fork.length })
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
-      setShowCheck(false)
       const delta = e.key === 'ArrowLeft' ? -1 : 1
 
       if (mode === 'recalling') {
@@ -140,16 +152,34 @@ function App() {
       <div>
         Next: {displaySign === 1 ? 'Black' : 'White'}
         {mode === 'recalling' && (
-          <>
-            {' '}<button onClick={() => setShowCheck(true)}>Check</button>
-            {showCheck && (
-              <span style={{ color: hasDiverged ? 'red' : 'green', fontWeight: 'bold', marginLeft: '8px' }}>
-                {hasDiverged ? 'Diverged' : 'On track'}
-              </span>
-            )}
-          </>
+          <>{' '}<button onClick={handleCheck}>Check</button></>
         )}
       </div>
+      {checkReport && (
+        <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
+          {checkReport.divergence == null ? (
+            <span style={{ color: 'green', fontWeight: 'bold' }}>On track</span>
+          ) : (
+            <>
+              <div>
+                <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkStart) }} style={{ color: 'inherit' }}>
+                  {checkReport.forkStart}
+                </a> - Fork starts
+              </div>
+              <div style={{ color: 'red' }}>
+                <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.divergence!) }} style={{ color: 'red' }}>
+                  {checkReport.divergence}
+                </a> - Divergence starts
+              </div>
+              <div>
+                <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkEnd) }} style={{ color: 'inherit' }}>
+                  {checkReport.forkEnd}
+                </a> - Fork ends
+              </div>
+            </>
+          )}
+        </div>
+      )}
       {mode === 'viewing' ? (
         <input
           type="range"
