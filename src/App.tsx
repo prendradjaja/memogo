@@ -52,10 +52,29 @@ function App() {
 
   const mode: 'viewing' | 'recalling' = fork ? 'recalling' : 'viewing'
 
+  const loadFile = (file: File) => {
+    file.text().then((text) => {
+      setSgfText(text)
+      setMoveIndex(0)
+      setFork(null)
+      setForkIndex(0)
+      setCheckReport(null)
+    })
+  }
+
   useEffect(() => {
-    fetch('/example.sgf')
-      .then((res) => res.text())
-      .then(setSgfText)
+    const handleDragOver = (e: DragEvent) => e.preventDefault()
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault()
+      const file = e.dataTransfer?.files[0]
+      if (file) loadFile(file)
+    }
+    window.addEventListener('dragover', handleDragOver)
+    window.addEventListener('drop', handleDrop)
+    return () => {
+      window.removeEventListener('dragover', handleDragOver)
+      window.removeEventListener('drop', handleDrop)
+    }
   }, [])
 
   const { boards, moves } = useMemo(() => {
@@ -139,7 +158,12 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [mode, fork, boards.length])
 
-  if (!sgfText) return <>Loading...</>
+  if (!sgfText) return (
+    <div>
+      <input type="file" accept=".sgf" onChange={(e) => { const f = e.target.files?.[0]; if (f) loadFile(f) }} />
+      <p>Or drag and drop an SGF file anywhere</p>
+    </div>
+  )
 
   return (
     <>
