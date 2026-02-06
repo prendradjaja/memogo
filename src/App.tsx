@@ -80,6 +80,7 @@ function App() {
       <SimpleGoban
         signMap={currentBoard.signMap}
         cellSize={30}
+        ghostSign={displaySign}
         onVertexClick={handleVertexClick}
       />
       <div>Next: {displaySign === 1 ? 'Black' : 'White'}</div>

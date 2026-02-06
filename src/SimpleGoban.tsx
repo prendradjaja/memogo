@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useCallback } from 'react'
 import type { SignMap } from '@sabaki/go-board'
 
 const BOARD_COLOR = '#DEB887'
@@ -22,18 +22,20 @@ function getStarPoints(size: number): [number, number][] {
 interface SimpleGobanProps {
   signMap: SignMap
   cellSize?: number
+  ghostSign?: 1 | -1
   onVertexClick?: (x: number, y: number) => void
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30, onVertexClick }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, ghostSign, onVertexClick }: SimpleGobanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const hoverRef = useRef<{ x: number; y: number } | null>(null)
   const rows = signMap.length
   const cols = signMap[0].length
   const padding = cellSize
   const width = (cols - 1) * cellSize + padding * 2
   const height = (rows - 1) * cellSize + padding * 2
 
-  useEffect(() => {
+  const draw = useCallback((ghost?: { x: number; y: number } | null) => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -85,17 +87,62 @@ export default function SimpleGoban({ signMap, cellSize = 30, onVertexClick }: S
         ctx.stroke()
       }
     }
-  }, [signMap, cellSize, rows, cols, padding, width, height])
 
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!onVertexClick) return
+    // Ghost stone
+    if (ghost && ghostSign && signMap[ghost.y][ghost.x] === 0) {
+      const cx = padding + ghost.x * cellSize
+      const cy = padding + ghost.y * cellSize
+      ctx.globalAlpha = 0.5
+      ctx.beginPath()
+      ctx.arc(cx, cy, r, 0, Math.PI * 2)
+      ctx.fillStyle = ghostSign === 1 ? '#111' : '#fff'
+      ctx.fill()
+      ctx.strokeStyle = ghostSign === 1 ? '#000' : '#888'
+      ctx.lineWidth = 1
+      ctx.stroke()
+      ctx.globalAlpha = 1
+    }
+  }, [signMap, cellSize, ghostSign, rows, cols, padding, width, height])
+
+  useEffect(() => {
+    draw(hoverRef.current)
+  }, [draw])
+
+  const toVertex = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
     const x = Math.round((e.clientX - rect.left - padding) / cellSize)
     const y = Math.round((e.clientY - rect.top - padding) / cellSize)
-    if (x >= 0 && x < cols && y >= 0 && y < rows) {
-      onVertexClick(x, y)
-    }
+    if (x >= 0 && x < cols && y >= 0 && y < rows) return { x, y }
+    return null
   }
 
-  return <canvas ref={canvasRef} width={width} height={height} onClick={handleClick} />
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onVertexClick) return
+    const v = toVertex(e)
+    if (v) onVertexClick(v.x, v.y)
+  }
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const v = toVertex(e)
+    const prev = hoverRef.current
+    if (v?.x === prev?.x && v?.y === prev?.y) return
+    hoverRef.current = v
+    draw(v)
+  }
+
+  const handleMouseLeave = () => {
+    hoverRef.current = null
+    draw(null)
+  }
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={width}
+      height={height}
+      onClick={handleClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    />
+  )
 }
