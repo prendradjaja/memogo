@@ -3,6 +3,8 @@ import SimpleGoban from './SimpleGoban'
 import Board from '@sabaki/go-board'
 import * as sgf from '@sabaki/sgf'
 
+type Move = { sign: 1 | -1; vertex: [number, number] }
+
 interface SgfNode {
   id: number
   data: Record<string, string[]>
@@ -10,8 +12,8 @@ interface SgfNode {
   children: SgfNode[]
 }
 
-function extractMoves(rootNode: SgfNode): { sign: 1 | -1; vertex: [number, number] }[] {
-  const moves: { sign: 1 | -1; vertex: [number, number] }[] = []
+function extractMoves(rootNode: SgfNode): Move[] {
+  const moves: Move[] = []
   let node = rootNode
 
   while (node.children.length > 0) {
@@ -32,11 +34,27 @@ function extractMoves(rootNode: SgfNode): { sign: 1 | -1; vertex: [number, numbe
   return moves
 }
 
+function replayMoves(moves: Move[]): Board[] {
+  const boards = [Board.fromDimensions(19)]
+  for (const move of moves) {
+    boards.push(boards[boards.length - 1].makeMove(move.sign, move.vertex))
+  }
+  return boards
+}
+
+function formatMove(move: Move, board: Board): string {
+  const coord = board.stringifyVertex(move.vertex)
+  return coord
+}
+
+function formatMoves(moves: Move[], board: Board): string {
+  return moves.map((m) => formatMove(m, board)).join(' ')
+}
+
 function App() {
   const [sgfText, setSgfText] = useState<string | null>(null)
   const [moveIndex, setMoveIndex] = useState(0)
-  const [customBoard, setCustomBoard] = useState<Board | null>(null)
-  const [currentSign, setCurrentSign] = useState<1 | -1>(1)
+  const [fork, setFork] = useState<Move[] | null>(null)
 
   useEffect(() => {
     fetch('/example.sgf')
@@ -45,33 +63,41 @@ function App() {
   }, [])
 
   const { boards, moves } = useMemo(() => {
-    if (!sgfText) return { boards: [Board.fromDimensions(19)], moves: [] as { sign: 1 | -1; vertex: [number, number] }[] }
+    if (!sgfText) return { boards: [Board.fromDimensions(19)], moves: [] as Move[] }
     const rootNodes = sgf.parse(sgfText) as SgfNode[]
     const moves = extractMoves(rootNodes[0])
-    const boards = [Board.fromDimensions(19)]
-    for (const move of moves) {
-      boards.push(boards[boards.length - 1].makeMove(move.sign, move.vertex))
-    }
-    return { boards, moves }
+    return { boards: replayMoves(moves), moves }
   }, [sgfText])
 
-  const currentBoard = customBoard ?? boards[moveIndex]
+  const forkBoards = useMemo(() => {
+    if (!fork) return null
+    return replayMoves(fork)
+  }, [fork])
 
-  // Determine next player from slider position
-  const nextSignFromSgf: 1 | -1 = moveIndex > 0 && moves[moveIndex - 1]?.sign === 1 ? -1 : 1
-  const displaySign = customBoard ? currentSign : nextSignFromSgf
+  const currentBoard = forkBoards
+    ? forkBoards[forkBoards.length - 1]
+    : boards[moveIndex]
+
+  // Determine next player
+  const nextSign = (movelist: Move[]): 1 | -1 => {
+    if (movelist.length === 0) return 1
+    return movelist[movelist.length - 1].sign === 1 ? -1 : 1
+  }
+  const displaySign = fork
+    ? nextSign(fork)
+    : nextSign(moves.slice(0, moveIndex))
 
   const handleVertexClick = (x: number, y: number) => {
-    const board = customBoard ?? boards[moveIndex]
-    if (board.get([x, y]) !== 0) return
-    const sign = customBoard ? currentSign : nextSignFromSgf
-    setCustomBoard(board.makeMove(sign, [x, y]))
-    setCurrentSign(sign === 1 ? -1 : 1)
+    if (currentBoard.get([x, y]) !== 0) return
+    const newMove: Move = { sign: displaySign, vertex: [x, y] }
+    if (fork) {
+      setFork([...fork, newMove])
+    } else {
+      setFork([...moves.slice(0, moveIndex), newMove])
+    }
   }
 
-  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMoveIndex(Number(e.target.value))
-  }
+  const dummyBoard = Board.fromDimensions(19)
 
   if (!sgfText) return <>Loading...</>
 
@@ -84,13 +110,19 @@ function App() {
         onVertexClick={handleVertexClick}
       />
       <div>Next: {displaySign === 1 ? 'Black' : 'White'}</div>
-      {!customBoard && (
+      {fork && (
+        <div style={{ fontFamily: 'monospace', fontSize: '12px', maxWidth: '600px', whiteSpace: 'pre-wrap' }}>
+          <div>moves: {formatMoves(moves, dummyBoard)}</div>
+          <div>fork:  {formatMoves(fork, dummyBoard)}</div>
+        </div>
+      )}
+      {!fork && (
         <input
           type="range"
           min={0}
           max={boards.length - 1}
           value={moveIndex}
-          onChange={handleSliderChange}
+          onChange={(e) => setMoveIndex(Number(e.target.value))}
           style={{ width: '500px' }}
         />
       )}
