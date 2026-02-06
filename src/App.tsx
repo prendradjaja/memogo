@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Goban } from '@sabaki/shudan'
 import '@sabaki/shudan/css/goban.css'
 
-const emptyBoard = Array.from({ length: 9 }, () => Array(9).fill(0))
+const emptyBoard = Array.from({ length: 19 }, () => Array(19).fill(0))
 
 function App() {
   const [signMap, setSignMap] = useState(emptyBoard)
@@ -11,7 +11,7 @@ function App() {
   return (
     <>
       <Goban
-        vertexSize={32}
+        vertexSize={50}
         signMap={signMap}
         showCoordinates
         onVertexClick={(_evt: unknown, [x, y]: [number, number]) => {
