@@ -150,6 +150,27 @@ function App() {
         onVertexClick={handleVertexClick}
       />
       <div>
+        {mode === 'viewing' ? (
+          <input
+            type="range"
+            min={0}
+            max={boards.length - 1}
+            value={moveIndex}
+            onChange={(e) => setMoveIndex(Number(e.target.value))}
+            style={{ width: '500px' }}
+          />
+        ) : (
+          <input
+            type="range"
+            min={0}
+            max={boards.length - 1}
+            value={Math.min(forkIndex, boards.length - 1)}
+            onChange={(e) => setForkIndex(Math.min(Number(e.target.value), fork!.length))}
+            style={{ width: '500px' }}
+          />
+        )}
+      </div>
+      <div>
         {mode === 'recalling' && (
           <button onClick={handleCheck}>Check</button>
         )}
@@ -180,25 +201,6 @@ function App() {
             </>
           )}
         </div>
-      )}
-      {mode === 'viewing' ? (
-        <input
-          type="range"
-          min={0}
-          max={boards.length - 1}
-          value={moveIndex}
-          onChange={(e) => setMoveIndex(Number(e.target.value))}
-          style={{ width: '500px' }}
-        />
-      ) : (
-        <input
-          type="range"
-          min={0}
-          max={boards.length - 1}
-          value={Math.min(forkIndex, boards.length - 1)}
-          onChange={(e) => setForkIndex(Math.min(Number(e.target.value), fork!.length))}
-          style={{ width: '500px' }}
-        />
       )}
     </>
   )
