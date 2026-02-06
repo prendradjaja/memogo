@@ -1,5 +1,30 @@
+import { useState } from 'react'
+import { Goban } from '@sabaki/shudan'
+import '@sabaki/shudan/css/goban.css'
+
+const emptyBoard = Array.from({ length: 9 }, () => Array(9).fill(0))
+
 function App() {
-  return <>Hello, world!</>
+  const [signMap, setSignMap] = useState(emptyBoard)
+  const [currentSign, setCurrentSign] = useState<1 | -1>(1)
+
+  return (
+    <>
+      <Goban
+        vertexSize={32}
+        signMap={signMap}
+        showCoordinates
+        onVertexClick={(_evt: unknown, [x, y]: [number, number]) => {
+          setSignMap((prev) => {
+            const next = prev.map((row) => [...row])
+            next[y][x] = next[y][x] === 0 ? currentSign : 0
+            return next
+          })
+          setCurrentSign((s) => (s === 1 ? -1 : 1))
+        }}
+      />
+    </>
+  )
 }
 
 export default App
