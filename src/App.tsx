@@ -102,6 +102,31 @@ function App() {
     !moves[i] || m.vertex[0] !== moves[i].vertex[0] || m.vertex[1] !== moves[i].vertex[1] || m.sign !== moves[i].sign
   )
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+      e.preventDefault()
+      setShowCheck(false)
+      const delta = e.key === 'ArrowLeft' ? -1 : 1
+
+      if (mode === 'recalling') {
+        if (e.altKey) {
+          setForkIndex(e.key === 'ArrowLeft' ? 0 : fork!.length)
+        } else {
+          setForkIndex((i) => Math.max(0, Math.min(fork!.length, i + delta)))
+        }
+      } else {
+        if (e.altKey) {
+          setMoveIndex(e.key === 'ArrowLeft' ? 0 : boards.length - 1)
+        } else {
+          setMoveIndex((i) => Math.max(0, Math.min(boards.length - 1, i + delta)))
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [mode, fork, boards.length])
+
   if (!sgfText) return <>Loading...</>
 
   return (
