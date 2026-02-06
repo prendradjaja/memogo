@@ -48,6 +48,7 @@ function App() {
   const [moveIndex, setMoveIndex] = useState(0)
   const [fork, setFork] = useState<Move[] | null>(null)
   const [forkIndex, setForkIndex] = useState(0)
+  const [showCheck, setShowCheck] = useState(false)
 
   const mode: 'viewing' | 'recalling' = fork ? 'recalling' : 'viewing'
 
@@ -84,6 +85,7 @@ function App() {
 
   const handleVertexClick = (x: number, y: number) => {
     if (currentBoard.get([x, y]) !== 0) return
+    setShowCheck(false)
     const newMove: Move = { sign: displaySign, vertex: [x, y] }
     if (mode === 'recalling') {
       const newFork = [...fork!.slice(0, forkIndex), newMove]
@@ -110,8 +112,19 @@ function App() {
         ghostSign={displaySign}
         onVertexClick={handleVertexClick}
       />
-      <div>Next: {displaySign === 1 ? 'Black' : 'White'}</div>
-      {hasDiverged && <div style={{ color: 'red', fontWeight: 'bold' }}>Diverged from game</div>}
+      <div>
+        Next: {displaySign === 1 ? 'Black' : 'White'}
+        {mode === 'recalling' && (
+          <>
+            {' '}<button onClick={() => setShowCheck(true)}>Check</button>
+            {showCheck && (
+              <span style={{ color: hasDiverged ? 'red' : 'green', fontWeight: 'bold', marginLeft: '8px' }}>
+                {hasDiverged ? 'Diverged' : 'On track'}
+              </span>
+            )}
+          </>
+        )}
+      </div>
       {mode === 'viewing' ? (
         <input
           type="range"
