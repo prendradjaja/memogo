@@ -4,6 +4,21 @@ import type { SignMap } from '@sabaki/go-board'
 const BOARD_COLOR = '#DEB887'
 const LINE_COLOR = '#8B4513'
 
+function getStarPoints(size: number): [number, number][] {
+  if (size === 19) {
+    const pts = [3, 9, 15]
+    return pts.flatMap((x) => pts.map((y) => [x, y] as [number, number]))
+  }
+  if (size === 13) {
+    const pts = [3, 6, 9]
+    return pts.flatMap((x) => pts.map((y) => [x, y] as [number, number]))
+  }
+  if (size === 9) {
+    return [[2, 2], [2, 6], [4, 4], [6, 2], [6, 6]]
+  }
+  return []
+}
+
 interface SimpleGobanProps {
   signMap: SignMap
   cellSize?: number
@@ -42,6 +57,15 @@ export default function SimpleGoban({ signMap, cellSize = 30 }: SimpleGobanProps
       ctx.lineTo(padding + (cols - 1) * cellSize, py)
     }
     ctx.stroke()
+
+    // Star points
+    const starPoints = getStarPoints(Math.min(rows, cols))
+    ctx.fillStyle = LINE_COLOR
+    for (const [x, y] of starPoints) {
+      ctx.beginPath()
+      ctx.arc(padding + x * cellSize, padding + y * cellSize, cellSize * 0.12, 0, Math.PI * 2)
+      ctx.fill()
+    }
 
     // Stones
     const r = cellSize * 0.45
