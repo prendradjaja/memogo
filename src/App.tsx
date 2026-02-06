@@ -43,19 +43,16 @@ function App() {
       .then(setSgfText)
   }, [])
 
-  const moves = useMemo(() => {
-    if (!sgfText) return []
+  const boards = useMemo(() => {
+    if (!sgfText) return [Board.fromDimensions(19)]
     const rootNodes = sgf.parse(sgfText) as SgfNode[]
-    return extractMoves(rootNodes[0])
-  }, [sgfText])
-
-  const board = useMemo(() => {
-    let b = Board.fromDimensions(19)
-    for (let i = 0; i < moveIndex; i++) {
-      b = b.makeMove(moves[i].sign, moves[i].vertex)
+    const moves = extractMoves(rootNodes[0])
+    const result = [Board.fromDimensions(19)]
+    for (const move of moves) {
+      result.push(result[result.length - 1].makeMove(move.sign, move.vertex))
     }
-    return b
-  }, [moves, moveIndex])
+    return result
+  }, [sgfText])
 
   if (!sgfText) return <>Loading...</>
 
@@ -63,13 +60,13 @@ function App() {
     <>
       <Goban
         vertexSize={50}
-        signMap={board.signMap}
+        signMap={boards[moveIndex].signMap}
         showCoordinates
       />
       <input
         type="range"
         min={0}
-        max={moves.length}
+        max={boards.length - 1}
         value={moveIndex}
         onChange={(e) => setMoveIndex(Number(e.target.value))}
         style={{ width: '500px' }}
