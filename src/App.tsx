@@ -110,12 +110,6 @@ function App() {
         onVertexClick={handleVertexClick}
       />
       <div>Next: {displaySign === 1 ? 'Black' : 'White'}</div>
-      {fork && (
-        <div style={{ fontFamily: 'monospace', fontSize: '12px', maxWidth: '600px', whiteSpace: 'pre-wrap' }}>
-          <div>moves: {formatMoves(moves, dummyBoard)}</div>
-          <div>fork:  {formatMoves(fork, dummyBoard)}</div>
-        </div>
-      )}
       {!fork && (
         <input
           type="range"
