@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Goban } from '@sabaki/shudan'
-import '@sabaki/shudan/css/goban.css'
+import SimpleGoban from './SimpleGoban'
 import Board from '@sabaki/go-board'
 import * as sgf from '@sabaki/sgf'
 
@@ -58,11 +57,8 @@ function App() {
 
   return (
     <>
-      <Goban
-        vertexSize={50}
-        signMap={boards[moveIndex].signMap}
-        showCoordinates
-      />
+      <SimpleGoban signMap={boards[moveIndex].signMap} cellSize={30} />
+      <br/>
       <input
         type="range"
         min={0}
