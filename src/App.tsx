@@ -44,7 +44,7 @@ function replayMoves(moves: Move[]): Board[] {
 
 
 function App() {
-  const [sgfText, setSgfText] = useState<string | null>(null)
+  const [sgfText, setSgfText] = useState<string | null>(() => localStorage.getItem('sgf'))
   const [moveIndex, setMoveIndex] = useState(0)
   const [fork, setFork] = useState<Move[] | null>(null)
   const [forkIndex, setForkIndex] = useState(0)
@@ -54,12 +54,18 @@ function App() {
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
+      localStorage.setItem('sgf', text)
       setSgfText(text)
       setMoveIndex(0)
       setFork(null)
       setForkIndex(0)
       setCheckReport(null)
     })
+  }
+
+  const handleClearFile = () => {
+    localStorage.removeItem('sgf')
+    location.reload()
   }
 
   useEffect(() => {
@@ -198,6 +204,9 @@ function App() {
         {mode === 'recalling' && (
           <button onClick={handleCheck}>Check</button>
         )}
+      </div>
+      <div>
+        <button onClick={handleClearFile}>Clear file</button>
       </div>
       {checkReport && (
         <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
