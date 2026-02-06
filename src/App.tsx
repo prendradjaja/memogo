@@ -145,6 +145,19 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'g') {
+        const input = prompt('Go to move number:')
+        if (input == null) return
+        const n = Number(input)
+        if (isNaN(n)) return
+        if (mode === 'recalling') {
+          setForkIndex(Math.max(0, Math.min(fork!.length, n)))
+        } else {
+          setMoveIndex(Math.max(0, Math.min(boards.length - 1, n)))
+        }
+        return
+      }
+
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
       const delta = e.key === 'ArrowLeft' ? -1 : 1
@@ -181,7 +194,7 @@ function App() {
   return (
     <>
       <div style={{ marginBottom: '10px' }}>
-        <button onClick={handleClearFile}>Clear file</button>
+        <button onClick={handleClearFile}>Clear File</button>
         {' '}{playerBlack} (B) vs {playerWhite} (W)
       </div>
       <SimpleGoban
