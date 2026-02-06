@@ -83,11 +83,14 @@ function App() {
     }
   }, [])
 
-  const { boards, moves } = useMemo(() => {
-    if (!sgfText) return { boards: [Board.fromDimensions(19)], moves: [] as Move[] }
+  const { boards, moves, playerBlack, playerWhite } = useMemo(() => {
+    if (!sgfText) return { boards: [Board.fromDimensions(19)], moves: [] as Move[], playerBlack: 'Unknown', playerWhite: 'Unknown' }
     const rootNodes = sgf.parse(sgfText) as SgfNode[]
-    const moves = extractMoves(rootNodes[0])
-    return { boards: replayMoves(moves), moves }
+    const root = rootNodes[0]
+    const moves = extractMoves(root)
+    const playerBlack = root.data.PB?.[0] || 'Unknown'
+    const playerWhite = root.data.PW?.[0] || 'Unknown'
+    return { boards: replayMoves(moves), moves, playerBlack, playerWhite }
   }, [sgfText])
 
   const forkBoards = useMemo(() => {
@@ -179,6 +182,7 @@ function App() {
     <>
       <div style={{ marginBottom: '10px' }}>
         <button onClick={handleClearFile}>Clear file</button>
+        {' '}{playerBlack} (B) vs {playerWhite} (W)
       </div>
       <SimpleGoban
         signMap={currentBoard.signMap}
