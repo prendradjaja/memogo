@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "typecheck-watch": "tsc -p tsconfig.app.json --noEmit --watch"
   },
   "dependencies": {
     "react": "^19.2.0",
