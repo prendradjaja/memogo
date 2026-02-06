@@ -55,6 +55,9 @@ function App() {
   const [sgfText, setSgfText] = useState<string | null>(null)
   const [moveIndex, setMoveIndex] = useState(0)
   const [fork, setFork] = useState<Move[] | null>(null)
+  const [forkIndex, setForkIndex] = useState(0)
+
+  const mode: 'viewing' | 'recalling' = fork ? 'recalling' : 'viewing'
 
   useEffect(() => {
     fetch('/example.sgf')
@@ -74,8 +77,8 @@ function App() {
     return replayMoves(fork)
   }, [fork])
 
-  const currentBoard = forkBoards
-    ? forkBoards[forkBoards.length - 1]
+  const currentBoard = mode === 'recalling'
+    ? forkBoards![forkIndex]
     : boards[moveIndex]
 
   // Determine next player
@@ -83,17 +86,21 @@ function App() {
     if (movelist.length === 0) return 1
     return movelist[movelist.length - 1].sign === 1 ? -1 : 1
   }
-  const displaySign = fork
-    ? nextSign(fork)
+  const displaySign = mode === 'recalling'
+    ? nextSign(fork!.slice(0, forkIndex))
     : nextSign(moves.slice(0, moveIndex))
 
   const handleVertexClick = (x: number, y: number) => {
     if (currentBoard.get([x, y]) !== 0) return
     const newMove: Move = { sign: displaySign, vertex: [x, y] }
-    if (fork) {
-      setFork([...fork, newMove])
+    if (mode === 'recalling') {
+      const newFork = [...fork!.slice(0, forkIndex), newMove]
+      setFork(newFork)
+      setForkIndex(newFork.length)
     } else {
-      setFork([...moves.slice(0, moveIndex), newMove])
+      const newFork = [...moves.slice(0, moveIndex), newMove]
+      setFork(newFork)
+      setForkIndex(newFork.length)
     }
   }
 
@@ -115,13 +122,22 @@ function App() {
       />
       <div>Next: {displaySign === 1 ? 'Black' : 'White'}</div>
       {hasDiverged && <div style={{ color: 'red', fontWeight: 'bold' }}>Diverged from game</div>}
-      {!fork && (
+      {mode === 'viewing' ? (
         <input
           type="range"
           min={0}
           max={boards.length - 1}
           value={moveIndex}
           onChange={(e) => setMoveIndex(Number(e.target.value))}
+          style={{ width: '500px' }}
+        />
+      ) : (
+        <input
+          type="range"
+          min={0}
+          max={boards.length - 1}
+          value={Math.min(forkIndex, boards.length - 1)}
+          onChange={(e) => setForkIndex(Math.min(Number(e.target.value), fork!.length))}
           style={{ width: '500px' }}
         />
       )}
