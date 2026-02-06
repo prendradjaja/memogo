@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react'
 import type { SignMap } from '@sabaki/go-board'
 
 const BOARD_COLOR = '#DEB887'
@@ -9,54 +10,57 @@ interface SimpleGobanProps {
 }
 
 export default function SimpleGoban({ signMap, cellSize = 30 }: SimpleGobanProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
   const cols = signMap[0].length
   const padding = cellSize
   const width = (cols - 1) * cellSize + padding * 2
   const height = (rows - 1) * cellSize + padding * 2
 
-  return (
-    <svg width={width} height={height}>
-      <rect width={width} height={height} fill={BOARD_COLOR} />
-      {/* Grid lines */}
-      {Array.from({ length: cols }, (_, x) => (
-        <line
-          key={`v${x}`}
-          x1={padding + x * cellSize}
-          y1={padding}
-          x2={padding + x * cellSize}
-          y2={padding + (rows - 1) * cellSize}
-          stroke={LINE_COLOR}
-          strokeWidth={1}
-        />
-      ))}
-      {Array.from({ length: rows }, (_, y) => (
-        <line
-          key={`h${y}`}
-          x1={padding}
-          y1={padding + y * cellSize}
-          x2={padding + (cols - 1) * cellSize}
-          y2={padding + y * cellSize}
-          stroke={LINE_COLOR}
-          strokeWidth={1}
-        />
-      ))}
-      {/* Stones */}
-      {signMap.flatMap((row, y) =>
-        row.map((sign, x) =>
-          sign !== 0 ? (
-            <circle
-              key={`${x},${y}`}
-              cx={padding + x * cellSize}
-              cy={padding + y * cellSize}
-              r={cellSize * 0.45}
-              fill={sign === 1 ? '#111' : '#fff'}
-              stroke={sign === 1 ? '#000' : '#888'}
-              strokeWidth={1}
-            />
-          ) : null
-        )
-      )}
-    </svg>
-  )
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Board background
+    ctx.fillStyle = BOARD_COLOR
+    ctx.fillRect(0, 0, width, height)
+
+    // Grid lines
+    ctx.strokeStyle = LINE_COLOR
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    for (let x = 0; x < cols; x++) {
+      const px = padding + x * cellSize
+      ctx.moveTo(px, padding)
+      ctx.lineTo(px, padding + (rows - 1) * cellSize)
+    }
+    for (let y = 0; y < rows; y++) {
+      const py = padding + y * cellSize
+      ctx.moveTo(padding, py)
+      ctx.lineTo(padding + (cols - 1) * cellSize, py)
+    }
+    ctx.stroke()
+
+    // Stones
+    const r = cellSize * 0.45
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const sign = signMap[y][x]
+        if (sign === 0) continue
+        const cx = padding + x * cellSize
+        const cy = padding + y * cellSize
+        ctx.beginPath()
+        ctx.arc(cx, cy, r, 0, Math.PI * 2)
+        ctx.fillStyle = sign === 1 ? '#111' : '#fff'
+        ctx.fill()
+        ctx.strokeStyle = sign === 1 ? '#000' : '#888'
+        ctx.lineWidth = 1
+        ctx.stroke()
+      }
+    }
+  }, [signMap, cellSize, rows, cols, padding, width, height])
+
+  return <canvas ref={canvasRef} width={width} height={height} />
 }
