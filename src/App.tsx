@@ -42,14 +42,6 @@ function replayMoves(moves: Move[]): Board[] {
   return boards
 }
 
-function formatMove(move: Move, board: Board): string {
-  const coord = board.stringifyVertex(move.vertex)
-  return coord
-}
-
-function formatMoves(moves: Move[], board: Board): string {
-  return moves.map((m) => formatMove(m, board)).join(' ')
-}
 
 function App() {
   const [sgfText, setSgfText] = useState<string | null>(null)
@@ -103,8 +95,6 @@ function App() {
       setForkIndex(newFork.length)
     }
   }
-
-  const dummyBoard = Board.fromDimensions(19)
 
   const hasDiverged = fork != null && fork.some((m, i) =>
     !moves[i] || m.vertex[0] !== moves[i].vertex[0] || m.vertex[1] !== moves[i].vertex[1] || m.sign !== moves[i].sign
