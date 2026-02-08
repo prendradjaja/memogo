@@ -51,6 +51,7 @@ function App() {
   const [checkReport, setCheckReport] = useState<{ forkStart: number; divergence: number | null; forkEnd: number } | null>(null)
   const [playerMode, setPlayerMode] = useState<'normal' | 'black' | 'white'>('normal')
   const [autoPlayDelay, setAutoPlayDelay] = useState(500)
+  const [oneColor, setOneColor] = useState(false)
 
   const mode: 'viewing' | 'recalling' = fork ? 'recalling' : 'viewing'
 
@@ -275,9 +276,9 @@ function App() {
         {' '}{playerBlack} (B) vs {playerWhite} (W)
       </div>
       <SimpleGoban
-        signMap={currentBoard.signMap}
+        signMap={oneColor ? currentBoard.signMap.map(row => row.map(v => (v !== 0 ? -1 : 0) as 0 | 1 | -1)) : currentBoard.signMap}
         cellSize={cellSize}
-        ghostSign={effectiveGhostSign}
+        ghostSign={oneColor ? -1 : effectiveGhostSign}
         onVertexClick={handleVertexClick}
       />
       <div>
@@ -312,6 +313,10 @@ function App() {
             <button onClick={handleConfigDelay}>{autoPlayDelay}ms</button>
           </>
         )}
+        {' '}
+        <button onClick={() => setOneColor(c => !c)}>
+          {oneColor ? 'One-color' : 'Normal'}
+        </button>
       </div>
       {checkReport && (
         <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
