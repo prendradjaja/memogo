@@ -160,7 +160,7 @@ function App() {
 
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
-      const delta = e.key === 'ArrowLeft' ? -1 : 1
+      const delta = (e.key === 'ArrowLeft' ? -1 : 1) * (e.shiftKey ? 10 : 1)
 
       if (mode === 'recalling') {
         if (e.altKey) {
