@@ -49,6 +49,9 @@ function App() {
   const [fork, setFork] = useState<Move[] | null>(null)
   const [forkIndex, setForkIndex] = useState(0)
   const [checkReport, setCheckReport] = useState<{ forkStart: number; divergence: number | null; forkEnd: number } | null>(null)
+  const [playerMode, setPlayerMode] = useState<'normal' | 'black' | 'white'>('normal')
+  const [autoPlayDelay, setAutoPlayDelay] = useState(500)
+  const [oneColor, setOneColor] = useState(false)
 
   const mode: 'viewing' | 'recalling' = fork ? 'recalling' : 'viewing'
 
@@ -113,16 +116,34 @@ function App() {
 
   const handleVertexClick = (x: number, y: number) => {
     if (currentBoard.get([x, y]) !== 0) return
+
+    // In one-color mode, block clicks when it's not user's turn
+    if (playerMode !== 'normal') {
+      const userSign = playerMode === 'black' ? 1 : -1
+      if (displaySign !== userSign) return
+    }
+
     setCheckReport(null)
     const newMove: Move = { sign: displaySign, vertex: [x, y] }
+    let newFork: Move[]
     if (mode === 'recalling') {
-      const newFork = [...fork!.slice(0, forkIndex), newMove]
-      setFork(newFork)
-      setForkIndex(newFork.length)
+      newFork = [...fork!.slice(0, forkIndex), newMove]
     } else {
-      const newFork = [...moves.slice(0, moveIndex), newMove]
-      setFork(newFork)
-      setForkIndex(newFork.length)
+      newFork = [...moves.slice(0, moveIndex), newMove]
+    }
+    setFork(newFork)
+    setForkIndex(newFork.length)
+
+    // Auto-check in one-color mode
+    if (playerMode !== 'normal') {
+      let divergence: number | null = null
+      for (let i = 0; i < newFork.length; i++) {
+        if (!moves[i] || newFork[i].vertex[0] !== moves[i].vertex[0] || newFork[i].vertex[1] !== moves[i].vertex[1] || newFork[i].sign !== moves[i].sign) {
+          divergence = i + 1
+          break
+        }
+      }
+      setCheckReport({ forkStart: 1, divergence, forkEnd: newFork.length })
     }
   }
 
@@ -142,6 +163,63 @@ function App() {
     }
     setCheckReport({ forkStart, divergence, forkEnd: fork.length })
   }
+
+  // Auto-play opponent's moves in one-color mode
+  useEffect(() => {
+    if (playerMode === 'normal') return
+    const userSign = playerMode === 'black' ? 1 : -1
+
+    if (!fork) {
+      // Viewing mode - auto-start if next move is opponent's
+      const nextMove = moves[moveIndex]
+      if (nextMove && nextMove.sign !== userSign) {
+        const timer = setTimeout(() => {
+          const newFork = [...moves.slice(0, moveIndex), nextMove]
+          setFork(newFork)
+          setForkIndex(newFork.length)
+        }, autoPlayDelay)
+        return () => clearTimeout(timer)
+      }
+      return
+    }
+
+    // Only auto-play when at the tip of the fork
+    if (forkIndex !== fork.length) return
+
+    // Check all moves are correct
+    for (let i = 0; i < fork.length; i++) {
+      if (!moves[i] || fork[i].vertex[0] !== moves[i].vertex[0] || fork[i].vertex[1] !== moves[i].vertex[1] || fork[i].sign !== moves[i].sign) {
+        return
+      }
+    }
+
+    // If next move is opponent's, auto-play after delay
+    const nextMove = moves[forkIndex]
+    if (nextMove && nextMove.sign !== userSign) {
+      const timer = setTimeout(() => {
+        setFork(prev => [...prev!, nextMove])
+        setForkIndex(prev => prev + 1)
+        setCheckReport(null)
+      }, autoPlayDelay)
+      return () => clearTimeout(timer)
+    }
+  }, [fork, forkIndex, playerMode, moves, moveIndex, autoPlayDelay])
+
+  const handleTogglePlayerMode = () => {
+    setPlayerMode(m => m === 'normal' ? 'black' : m === 'black' ? 'white' : 'normal')
+  }
+
+  const handleConfigDelay = () => {
+    const input = prompt('Auto-play delay (ms):', String(autoPlayDelay))
+    if (input == null) return
+    const n = Number(input)
+    if (!isNaN(n) && n >= 0) setAutoPlayDelay(n)
+  }
+
+  // In one-color mode, hide ghost stone when it's the opponent's turn
+  const effectiveGhostSign = (playerMode !== 'normal' && displaySign !== (playerMode === 'black' ? 1 : -1))
+    ? undefined
+    : displaySign
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -198,9 +276,9 @@ function App() {
         {' '}{playerBlack} (B) vs {playerWhite} (W)
       </div>
       <SimpleGoban
-        signMap={currentBoard.signMap}
+        signMap={oneColor ? currentBoard.signMap.map(row => row.map(v => (v !== 0 ? -1 : 0) as 0 | 1 | -1)) : currentBoard.signMap}
         cellSize={cellSize}
-        ghostSign={displaySign}
+        ghostSign={oneColor ? -1 : effectiveGhostSign}
         onVertexClick={handleVertexClick}
       />
       <div>
@@ -226,6 +304,19 @@ function App() {
       </div>
       <div>
         <button onClick={handleCheck} disabled={mode === 'viewing'}>Check</button>
+        {' '}
+        <button onClick={handleTogglePlayerMode}>
+          {playerMode === 'normal' ? 'Both' : playerMode === 'black' ? 'Black' : 'White'}
+        </button>
+        {playerMode !== 'normal' && (
+          <>
+            <button onClick={handleConfigDelay}>{autoPlayDelay}ms</button>
+          </>
+        )}
+        {' '}
+        <button onClick={() => setOneColor(c => !c)}>
+          {oneColor ? 'One-color' : 'Normal'}
+        </button>
       </div>
       {checkReport && (
         <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
