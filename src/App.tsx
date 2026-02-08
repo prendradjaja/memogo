@@ -305,11 +305,10 @@ function App() {
         <button onClick={handleCheck} disabled={mode === 'viewing'}>Check</button>
         {' '}
         <button onClick={handleTogglePlayerMode}>
-          {playerMode === 'normal' ? 'Normal' : playerMode === 'black' ? 'Black' : 'White'}
+          {playerMode === 'normal' ? 'Both' : playerMode === 'black' ? 'Black' : 'White'}
         </button>
         {playerMode !== 'normal' && (
           <>
-            {' '}
             <button onClick={handleConfigDelay}>{autoPlayDelay}ms</button>
           </>
         )}
