@@ -225,9 +225,7 @@ function App() {
         )}
       </div>
       <div>
-        {mode === 'recalling' && (
-          <button onClick={handleCheck}>Check</button>
-        )}
+        <button onClick={handleCheck} disabled={mode === 'viewing'}>Check</button>
       </div>
       {checkReport && (
         <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
