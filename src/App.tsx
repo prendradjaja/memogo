@@ -42,6 +42,11 @@ function replayMoves(moves: Move[]): Board[] {
   return boards
 }
 
+// https://stackoverflow.com/a/7228322
+function randomIntFromInterval(min: number, max: number) { // min and max included
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 
 function App() {
   const [sgfText, setSgfText] = useState<string | null>(() => localStorage.getItem('sgf'))
@@ -155,6 +160,13 @@ function App() {
         } else {
           setMoveIndex(Math.max(0, Math.min(boards.length - 1, n)))
         }
+        return
+      } else if (e.key === 'r') {
+        if (mode === 'recalling') {
+          return
+        }
+        const n = randomIntFromInterval(0, boards.length - 1)
+        setMoveIndex(n)
         return
       }
 
