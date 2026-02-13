@@ -230,14 +230,14 @@ function App() {
                 */}
                 <span style={{ color: 'red' }}>
                   <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.divergence!) }} style={{ color: 'red' }}>
-                    {checkReport.divergence}
-                  </a> Divergence starts
+                    Diverged
+                  </a>
                 </span>
                 {' '}
                 <span>
                   <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkEnd) }} style={{ color: 'inherit' }}>
-                    {checkReport.forkEnd}
-                  </a> Fork ends
+                    End of fork
+                  </a>
                 </span>
               </>
             )}
