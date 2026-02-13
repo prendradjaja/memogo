@@ -207,7 +207,39 @@ function App() {
     <>
       <div style={{ marginBottom: '10px' }}>
         <button onClick={handleClearFile}>Clear File</button>
-        {' '}{playerBlack} (B) vs {playerWhite} (W)
+        {' '}
+        {playerBlack} (B) vs {playerWhite} (W)
+        <span style={{ marginLeft: 80 }}></span>
+        <button onClick={handleCheck} disabled={mode === 'viewing'}>Check</button>
+        {checkReport && (
+          <span style={{ fontFamily: 'monospace' }}>
+            {' '}
+            {checkReport.divergence == null ? (
+              <span style={{ color: 'green', fontWeight: 'bold' }}>On track</span>
+            ) : (
+              <>
+                {/*
+                <span>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkStart) }} style={{ color: 'inherit' }}>
+                    {checkReport.forkStart}
+                  </a> Fork starts
+                </span>
+                */}
+                <span style={{ color: 'red' }}>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.divergence!) }} style={{ color: 'red' }}>
+                    {checkReport.divergence}
+                  </a> Divergence starts
+                </span>
+                {' '}
+                <span>
+                  <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkEnd) }} style={{ color: 'inherit' }}>
+                    {checkReport.forkEnd}
+                  </a> Fork ends
+                </span>
+              </>
+            )}
+          </span>
+        )}
       </div>
       <SimpleGoban
         signMap={currentBoard.signMap}
@@ -237,35 +269,7 @@ function App() {
         )}
       </div>
       <div>
-        <button onClick={handleCheck} disabled={mode === 'viewing'}>Check</button>
       </div>
-      {checkReport && (
-        <div style={{ fontFamily: 'monospace', fontSize: '13px', lineHeight: '1.6' }}>
-          {checkReport.divergence == null ? (
-            <span style={{ color: 'green', fontWeight: 'bold' }}>On track</span>
-          ) : (
-            <>
-              {/*
-              <div>
-                <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkStart) }} style={{ color: 'inherit' }}>
-                  {checkReport.forkStart}
-                </a> - Fork starts
-              </div>
-              */}
-              <div style={{ color: 'red' }}>
-                <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.divergence!) }} style={{ color: 'red' }}>
-                  {checkReport.divergence}
-                </a> - Divergence starts
-              </div>
-              <div>
-                <a href="#" onClick={(e) => { e.preventDefault(); setForkIndex(checkReport.forkEnd) }} style={{ color: 'inherit' }}>
-                  {checkReport.forkEnd}
-                </a> - Fork ends
-              </div>
-            </>
-          )}
-        </div>
-      )}
     </>
   )
 }
