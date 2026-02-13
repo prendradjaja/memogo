@@ -168,6 +168,9 @@ function App() {
         const n = randomIntFromInterval(0, boards.length - 1)
         setMoveIndex(n)
         return
+      } else if (e.key === 'c') {
+        handleCheck()
+        return
       }
 
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
