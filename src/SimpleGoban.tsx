@@ -64,7 +64,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
     ctx.fillStyle = LINE_COLOR
     for (const [x, y] of starPoints) {
       ctx.beginPath()
-      ctx.arc(padding + x * cellSize, padding + y * cellSize, cellSize * 0.12, 0, Math.PI * 2)
+      ctx.arc(Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5, cellSize * 0.12, 0, Math.PI * 2)
       ctx.fill()
     }
 
@@ -74,8 +74,8 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
       for (let x = 0; x < cols; x++) {
         const sign = signMap[y][x]
         if (sign === 0) continue
-        const cx = padding + x * cellSize
-        const cy = padding + y * cellSize
+        const cx = Math.floor(padding + x * cellSize) + 0.5
+        const cy = Math.floor(padding + y * cellSize) + 0.5
         ctx.beginPath()
         ctx.arc(cx, cy, r, 0, Math.PI * 2)
         ctx.fillStyle = sign === 1 ? '#000' : '#fff'
@@ -97,7 +97,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
           if (!label) continue
           const sign = signMap[y][x]
           ctx.fillStyle = sign === 1 ? '#fff' : '#111'
-          ctx.fillText(label, padding + x * cellSize, padding + y * cellSize)
+          ctx.fillText(label, Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5)
         }
       }
     }
