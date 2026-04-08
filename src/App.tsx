@@ -180,18 +180,19 @@ function App() {
         moveNumbers={moveNumbers}
         symbols={symbols}
       />
-      <div style={{ fontSize: '1.3rem', marginTop: 10 }}>
+      <div style={{ marginTop: 10 }}>
         {footerMoves.length > 0
           ? footerMoves.map((r, i) => (
               <span
                 key={i}
                 onMouseEnter={() => handleRepeatEnter(r.vertex)}
                 onMouseLeave={handleRepeatLeave}
+                style={{ fontSize: '1.3rem' }}
               >
-                {i > 0 ? ', ' : ''}{r.text}
+                {i > 0 ? ' \u2014 ' : ''}{r.text}
               </span>
             ))
-          : '\u00a0'}
+          : <span style={{ fontSize: '1.3rem' }}>{'\u00a0'}</span>}
       </div>
     </>
   )
