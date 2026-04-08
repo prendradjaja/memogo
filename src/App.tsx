@@ -131,6 +131,12 @@ function App() {
         return
       }
 
+      if (e.key === ' ' && !e.altKey) {
+        e.preventDefault()
+        setMoveIndex((i) => Math.min(maxMoveIndex, (Math.floor(i / MOVE_STEP) + 1) * MOVE_STEP))
+        return
+      }
+
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
       if (e.altKey) {
