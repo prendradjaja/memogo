@@ -147,6 +147,7 @@ function App() {
         <button onClick={handleClearFile}>Clear File</button>
         {' '}
         {playerBlack} (B) vs {playerWhite} (W)
+        <button style={{ marginLeft: '50px' }}>50 Moves per Page</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
