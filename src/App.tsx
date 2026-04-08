@@ -154,7 +154,7 @@ function App() {
         annotations={annotations}
       />
       {repeats.length > 0 && (
-        <div style={{ fontSize: '1.5rem' }}>{repeats.join(', ')}</div>
+        <div style={{ fontSize: '1.3rem', marginTop: 10, }}>{repeats.join(', ')}</div>
       )}
     </>
   )
