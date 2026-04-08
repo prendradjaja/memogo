@@ -34,12 +34,12 @@ function extractMoves(rootNode: SgfNode): Move[] {
   return moves
 }
 
-function replayMoves(moves: Move[]): Board[] {
-  const boards = [Board.fromDimensions(19)]
-  for (const move of moves) {
-    boards.push(boards[boards.length - 1].makeMove(move.sign, move.vertex))
+function replayUpTo(moves: Move[], n: number): Board {
+  let board = Board.fromDimensions(19)
+  for (let i = 0; i < n; i++) {
+    board = board.makeMove(moves[i].sign, moves[i].vertex)
   }
-  return boards
+  return board
 }
 
 // https://stackoverflow.com/a/7228322
@@ -88,24 +88,20 @@ function App() {
     }
   }, [])
 
-  const { boards, moves, playerBlack, playerWhite } = useMemo(() => {
-    if (!sgfText) return { boards: [Board.fromDimensions(19)], moves: [] as Move[], playerBlack: 'Unknown', playerWhite: 'Unknown' }
+  const { moves, playerBlack, playerWhite } = useMemo(() => {
+    if (!sgfText) return { moves: [] as Move[], playerBlack: 'Unknown', playerWhite: 'Unknown' }
     const rootNodes = sgf.parse(sgfText) as SgfNode[]
     const root = rootNodes[0]
     const moves = extractMoves(root)
     const playerBlack = root.data.PB?.[0] || 'Unknown'
     const playerWhite = root.data.PW?.[0] || 'Unknown'
-    return { boards: replayMoves(moves), moves, playerBlack, playerWhite }
+    return { moves, playerBlack, playerWhite }
   }, [sgfText])
 
-  const forkBoards = useMemo(() => {
-    if (!fork) return null
-    return replayMoves(fork)
-  }, [fork])
-
-  const currentBoard = mode === 'recalling'
-    ? forkBoards![forkIndex]
-    : boards[moveIndex]
+  const currentBoard = useMemo(() => {
+    if (mode === 'recalling') return replayUpTo(fork!, forkIndex)
+    return replayUpTo(moves, moveIndex)
+  }, [mode, fork, forkIndex, moves, moveIndex])
 
   // Determine next player
   const nextSign = (movelist: Move[]): 1 | -1 => {
@@ -158,14 +154,14 @@ function App() {
         if (mode === 'recalling') {
           setForkIndex(Math.max(0, Math.min(fork!.length, n)))
         } else {
-          setMoveIndex(Math.max(0, Math.min(boards.length - 1, n)))
+          setMoveIndex(Math.max(0, Math.min(moves.length, n)))
         }
         return
       } else if (e.key === 'r') {
         if (mode === 'recalling') {
           return
         }
-        const n = randomIntFromInterval(0, boards.length - 1)
+        const n = randomIntFromInterval(0, moves.length)
         setMoveIndex(n)
         return
       } else if (e.key === 'c') {
@@ -185,15 +181,15 @@ function App() {
         }
       } else {
         if (e.altKey) {
-          setMoveIndex(e.key === 'ArrowLeft' ? 0 : boards.length - 1)
+          setMoveIndex(e.key === 'ArrowLeft' ? 0 : moves.length)
         } else {
-          setMoveIndex((i) => Math.max(0, Math.min(boards.length - 1, i + delta)))
+          setMoveIndex((i) => Math.max(0, Math.min(moves.length, i + delta)))
         }
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [mode, fork, boards.length])
+  }, [mode, fork, moves.length])
 
   const cellSize = 50
   const boardCols = currentBoard.signMap[0].length
@@ -255,7 +251,7 @@ function App() {
           <input
             type="range"
             min={0}
-            max={boards.length - 1}
+            max={moves.length}
             value={moveIndex}
             onChange={(e) => setMoveIndex(Number(e.target.value))}
             style={{ width: `${boardWidth}px` }}
@@ -264,8 +260,8 @@ function App() {
           <input
             type="range"
             min={0}
-            max={boards.length - 1}
-            value={Math.min(forkIndex, boards.length - 1)}
+            max={moves.length}
+            value={Math.min(forkIndex, moves.length)}
             onChange={(e) => setForkIndex(Math.min(Number(e.target.value), fork!.length))}
             style={{ width: `${boardWidth}px` }}
           />
