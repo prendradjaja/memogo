@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import SimpleGoban from './SimpleGoban'
 import Board from '@sabaki/go-board'
 import * as sgf from '@sabaki/sgf'
@@ -103,12 +103,12 @@ function App() {
     const baseBoard = replayUpTo(moves, moveIndex)
     const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
     const grid: (number | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
-    const repeats: string[] = []
+    const repeats: { text: string; vertex: [number, number] }[] = []
     for (let i = moveIndex; i < pageEnd; i++) {
       const [x, y] = moves[i].vertex
       const label = i + 1
       if (grid[y][x] !== null) {
-        repeats.push(`${label} at ${grid[y][x]}`)
+        repeats.push({ text: `${label} at ${grid[y][x]}`, vertex: [x, y] })
       } else {
         displaySignMap[y][x] = moves[i].sign
         grid[y][x] = label
@@ -142,6 +142,19 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [maxMoveIndex])
 
+  const [hoveredRepeatVertex, setHoveredRepeatVertex] = useState<[number, number] | null>(null)
+
+  const handleRepeatEnter = useCallback((vertex: [number, number]) => setHoveredRepeatVertex(vertex), [])
+  const handleRepeatLeave = useCallback(() => setHoveredRepeatVertex(null), [])
+
+  const symbols = useMemo((): ('t' | 's' | null)[][] | undefined => {
+    if (!hoveredRepeatVertex) return undefined
+    const [x, y] = hoveredRepeatVertex
+    const grid: ('t' | 's' | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
+    grid[y][x] = 't'
+    return grid
+  }, [hoveredRepeatVertex])
+
   const cellSize = 50
 
   if (!sgfText) return (
@@ -162,8 +175,21 @@ function App() {
         signMap={displaySignMap}
         cellSize={cellSize}
         moveNumbers={moveNumbers}
+        symbols={symbols}
       />
-      <div style={{ fontSize: '1.3rem', marginTop: 10 }}>{repeats.length > 0 ? repeats.join(', ') : '\u00a0'}</div>
+      <div style={{ fontSize: '1.3rem', marginTop: 10 }}>
+        {repeats.length > 0
+          ? repeats.map((r, i) => (
+              <span
+                key={i}
+                onMouseEnter={() => handleRepeatEnter(r.vertex)}
+                onMouseLeave={handleRepeatLeave}
+              >
+                {i > 0 ? ', ' : ''}{r.text}
+              </span>
+            ))
+          : '\u00a0'}
+      </div>
     </>
   )
 }
