@@ -153,9 +153,7 @@ function App() {
         cellSize={cellSize}
         annotations={annotations}
       />
-      {repeats.length > 0 && (
-        <div style={{ fontSize: '1.3rem', marginTop: 10, }}>{repeats.join(', ')}</div>
-      )}
+      <div style={{ fontSize: '1.3rem', marginTop: 10 }}>{repeats.length > 0 ? repeats.join(', ') : '\u00a0'}</div>
     </>
   )
 }
