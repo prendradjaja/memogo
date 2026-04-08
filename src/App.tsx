@@ -101,12 +101,12 @@ function App() {
 
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
-      const delta = (e.key === 'ArrowLeft' ? -1 : 1) * MOVE_STEP
-
       if (e.altKey) {
         setMoveIndex(e.key === 'ArrowLeft' ? 0 : moves.length)
+      } else if (e.key === 'ArrowRight') {
+        setMoveIndex((i) => Math.min(moves.length, (Math.floor(i / MOVE_STEP) + 1) * MOVE_STEP))
       } else {
-        setMoveIndex((i) => Math.max(0, Math.min(moves.length, i + delta)))
+        setMoveIndex((i) => Math.max(0, (Math.ceil(i / MOVE_STEP) - 1) * MOVE_STEP))
       }
     }
     window.addEventListener('keydown', handleKeyDown)
