@@ -23,9 +23,10 @@ interface SimpleGobanProps {
   signMap: SignMap
   cellSize?: number
   moveNumbers?: (number | null)[][]
+  symbols?: ('t' | 's' | null)[][]
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbols }: SimpleGobanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
   const cols = signMap[0].length
@@ -86,22 +87,42 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers }: Sim
       }
     }
 
-    // Move numbers
-    if (moveNumbers) {
-      ctx.font = '25px sans-serif'
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
-          const label = moveNumbers[y]?.[x]
-          if (label == null) continue
-          const sign = signMap[y][x]
-          ctx.fillStyle = sign === 1 ? '#fff' : '#111'
-          ctx.fillText(String(label), Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5)
+    // Move numbers and symbols
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const symbol = symbols?.[y]?.[x]
+        const label = moveNumbers?.[y]?.[x]
+        const cx = Math.floor(padding + x * cellSize) + 0.5
+        const cy = Math.floor(padding + y * cellSize) + 0.5
+        const sign = signMap[y][x]
+        const color = sign === 1 ? '#fff' : '#111'
+
+        if (symbol === 't') {
+          const r = cellSize * 0.28
+          const angle = -Math.PI / 2
+          ctx.beginPath()
+          ctx.moveTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle))
+          ctx.lineTo(cx + r * Math.cos(angle + (2 * Math.PI) / 3), cy + r * Math.sin(angle + (2 * Math.PI) / 3))
+          ctx.lineTo(cx + r * Math.cos(angle + (4 * Math.PI) / 3), cy + r * Math.sin(angle + (4 * Math.PI) / 3))
+          ctx.closePath()
+          ctx.strokeStyle = color
+          ctx.lineWidth = 1.5
+          ctx.stroke()
+        } else if (symbol === 's') {
+          const s = cellSize * 0.22
+          ctx.strokeStyle = color
+          ctx.lineWidth = 1.5
+          ctx.strokeRect(cx - s, cy - s, s * 2, s * 2)
+        } else if (label != null) {
+          ctx.font = '25px sans-serif'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillStyle = color
+          ctx.fillText(String(label), cx, cy)
         }
       }
     }
-  }, [signMap, cellSize, moveNumbers, rows, cols, padding, width, height])
+  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, width, height])
 
   useEffect(() => {
     draw()
