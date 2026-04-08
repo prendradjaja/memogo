@@ -99,22 +99,25 @@ function App() {
   const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / MOVE_STEP) * MOVE_STEP : 0
   const pageEnd = Math.min(moveIndex + MOVE_STEP, moves.length)
 
-  const { displaySignMap, moveNumbers, repeats } = useMemo(() => {
+  const { displaySignMap, moveNumbers, footerMoves } = useMemo(() => {
     const baseBoard = replayUpTo(moves, moveIndex)
     const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
     const grid: (number | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
-    const repeats: { text: string; vertex: [number, number] }[] = []
+    // Moves that can't be shown on the board (stone already present), listed in the footer instead
+    const footerMoves: { text: string; vertex: [number, number] }[] = []
     for (let i = moveIndex; i < pageEnd; i++) {
       const [x, y] = moves[i].vertex
       const label = i + 1
       if (grid[y][x] !== null) {
-        repeats.push({ text: `${label} at ${grid[y][x]}`, vertex: [x, y] })
+        footerMoves.push({ text: `${label} at ${grid[y][x]}`, vertex: [x, y] })
+      } else if (baseBoard.signMap[y][x] !== 0) {
+        footerMoves.push({ text: `${label} at ${x + 1}-${y + 1}`, vertex: [x, y] })
       } else {
         displaySignMap[y][x] = moves[i].sign
         grid[y][x] = label
       }
     }
-    return { displaySignMap, moveNumbers: grid, repeats }
+    return { displaySignMap, moveNumbers: grid, footerMoves }
   }, [moves, moveIndex, pageEnd])
 
   useEffect(() => {
@@ -178,8 +181,8 @@ function App() {
         symbols={symbols}
       />
       <div style={{ fontSize: '1.3rem', marginTop: 10 }}>
-        {repeats.length > 0
-          ? repeats.map((r, i) => (
+        {footerMoves.length > 0
+          ? footerMoves.map((r, i) => (
               <span
                 key={i}
                 onMouseEnter={() => handleRepeatEnter(r.vertex)}
