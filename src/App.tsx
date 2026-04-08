@@ -42,12 +42,6 @@ function replayUpTo(moves: Move[], n: number): Board {
   return board
 }
 
-// https://stackoverflow.com/a/7228322
-function randomIntFromInterval(min: number, max: number) { // min and max included
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-
 function App() {
   const [sgfText, setSgfText] = useState<string | null>(() => localStorage.getItem('sgf'))
   const [moveIndex, setMoveIndex] = useState(0)
@@ -100,10 +94,6 @@ function App() {
         const n = Number(input)
         if (isNaN(n)) return
         setMoveIndex(Math.max(0, Math.min(moves.length, n)))
-        return
-      } else if (e.key === 'r') {
-        const n = randomIntFromInterval(0, moves.length)
-        setMoveIndex(n)
         return
       }
 
