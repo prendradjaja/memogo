@@ -154,10 +154,9 @@ function App() {
   return (
     <>
       <div style={{ marginBottom: '10px' }}>
-        <button onClick={handleClearFile}>Clear File</button>
-        {' '}
+        <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
-        <button style={{ marginLeft: '50px' }} onClick={handleMovesPerPage}>{MOVE_STEP} Moves per Page</button>
+        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{MOVE_STEP} moves per page</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
