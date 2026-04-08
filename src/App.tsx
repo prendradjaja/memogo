@@ -5,7 +5,7 @@ import * as sgf from '@sabaki/sgf'
 
 type Move = { sign: 1 | -1; vertex: [number, number] }
 
-const DEFAULT_MOVE_STEP = 50
+const DEFAULT_MOVE_STEP = 25
 const MOVE_STEP = Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP
 
 interface SgfNode {
