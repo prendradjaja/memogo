@@ -99,14 +99,14 @@ function App() {
   const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / MOVE_STEP) * MOVE_STEP : 0
   const pageEnd = Math.min(moveIndex + MOVE_STEP, moves.length)
 
-  const { displaySignMap, annotations, repeats } = useMemo(() => {
+  const { displaySignMap, moveNumbers, repeats } = useMemo(() => {
     const baseBoard = replayUpTo(moves, moveIndex)
     const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
-    const grid: (string | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
+    const grid: (number | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
     const repeats: string[] = []
     for (let i = moveIndex; i < pageEnd; i++) {
       const [x, y] = moves[i].vertex
-      const label = String(i + 1)
+      const label = i + 1
       if (grid[y][x] !== null) {
         repeats.push(`${label} at ${grid[y][x]}`)
       } else {
@@ -114,7 +114,7 @@ function App() {
         grid[y][x] = label
       }
     }
-    return { displaySignMap, annotations: grid, repeats }
+    return { displaySignMap, moveNumbers: grid, repeats }
   }, [moves, moveIndex, pageEnd])
 
   useEffect(() => {
@@ -161,7 +161,7 @@ function App() {
       <SimpleGoban
         signMap={displaySignMap}
         cellSize={cellSize}
-        annotations={annotations}
+        moveNumbers={moveNumbers}
       />
       <div style={{ fontSize: '1.3rem', marginTop: 10 }}>{repeats.length > 0 ? repeats.join(', ') : '\u00a0'}</div>
     </>

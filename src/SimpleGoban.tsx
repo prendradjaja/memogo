@@ -22,10 +22,10 @@ function getStarPoints(size: number): [number, number][] {
 interface SimpleGobanProps {
   signMap: SignMap
   cellSize?: number
-  annotations?: (string | null)[][]
+  moveNumbers?: (number | null)[][]
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30, annotations }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers }: SimpleGobanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
   const cols = signMap[0].length
@@ -86,22 +86,22 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
       }
     }
 
-    // Annotations
-    if (annotations) {
+    // Move numbers
+    if (moveNumbers) {
       ctx.font = '25px sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          const label = annotations[y]?.[x]
-          if (!label) continue
+          const label = moveNumbers[y]?.[x]
+          if (label == null) continue
           const sign = signMap[y][x]
           ctx.fillStyle = sign === 1 ? '#fff' : '#111'
-          ctx.fillText(label, Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5)
+          ctx.fillText(String(label), Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5)
         }
       }
     }
-  }, [signMap, cellSize, annotations, rows, cols, padding, width, height])
+  }, [signMap, cellSize, moveNumbers, rows, cols, padding, width, height])
 
   useEffect(() => {
     draw()
