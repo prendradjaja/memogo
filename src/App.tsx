@@ -62,6 +62,15 @@ function App() {
     location.reload()
   }
 
+  const handleMovesPerPage = () => {
+    const input = prompt(`Moves per page (default: ${DEFAULT_MOVE_STEP}):`)
+    if (input == null || input === '') return
+    const n = Number(input)
+    if (isNaN(n) || n <= 0) return
+    localStorage.setItem('moveStep', String(n))
+    location.reload()
+  }
+
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => e.preventDefault()
     const handleDrop = (e: DragEvent) => {
@@ -148,14 +157,7 @@ function App() {
         <button onClick={handleClearFile}>Clear File</button>
         {' '}
         {playerBlack} (B) vs {playerWhite} (W)
-        <button style={{ marginLeft: '50px' }} onClick={() => {
-          const input = prompt(`Moves per page (default: ${DEFAULT_MOVE_STEP}):`)
-          if (input == null || input === '') return
-          const n = Number(input)
-          if (isNaN(n) || n <= 0) return
-          localStorage.setItem('moveStep', String(n))
-          location.reload()
-        }}>{MOVE_STEP} Moves per Page</button>
+        <button style={{ marginLeft: '50px' }} onClick={handleMovesPerPage}>{MOVE_STEP} Moves per Page</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
