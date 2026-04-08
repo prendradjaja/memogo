@@ -22,9 +22,10 @@ function getStarPoints(size: number): [number, number][] {
 interface SimpleGobanProps {
   signMap: SignMap
   cellSize?: number
+  annotations?: (string | null)[][]
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30 }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, annotations }: SimpleGobanProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
   const cols = signMap[0].length
@@ -84,7 +85,23 @@ export default function SimpleGoban({ signMap, cellSize = 30 }: SimpleGobanProps
         ctx.stroke()
       }
     }
-  }, [signMap, cellSize, rows, cols, padding, width, height])
+
+    // Annotations
+    if (annotations) {
+      ctx.font = 'bold 14px monospace'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const label = annotations[y]?.[x]
+          if (!label) continue
+          const sign = signMap[y][x]
+          ctx.fillStyle = sign === 1 ? '#fff' : '#111'
+          ctx.fillText(label, padding + x * cellSize, padding + y * cellSize)
+        }
+      }
+    }
+  }, [signMap, cellSize, annotations, rows, cols, padding, width, height])
 
   useEffect(() => {
     draw()
