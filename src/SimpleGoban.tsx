@@ -1,8 +1,8 @@
 import { useRef, useEffect, useCallback } from 'react'
 import type { SignMap } from '@sabaki/go-board'
 
-const BOARD_COLOR = '#DEB887'
-const LINE_COLOR = '#8B4513'
+const BOARD_COLOR = 'white'
+const LINE_COLOR = 'black'
 
 function getStarPoints(size: number): [number, number][] {
   if (size === 19) {
@@ -78,9 +78,9 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
         const cy = padding + y * cellSize
         ctx.beginPath()
         ctx.arc(cx, cy, r, 0, Math.PI * 2)
-        ctx.fillStyle = sign === 1 ? '#111' : '#fff'
+        ctx.fillStyle = sign === 1 ? '#000' : '#fff'
         ctx.fill()
-        ctx.strokeStyle = sign === 1 ? '#000' : '#888'
+        ctx.strokeStyle = sign === 1 ? '#000' : 'fff'
         ctx.lineWidth = 1
         ctx.stroke()
       }
