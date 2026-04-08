@@ -5,7 +5,8 @@ import * as sgf from '@sabaki/sgf'
 
 type Move = { sign: 1 | -1; vertex: [number, number] }
 
-const MOVE_STEP = 50
+const DEFAULT_MOVE_STEP = 50
+const MOVE_STEP = Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP
 
 interface SgfNode {
   id: number
@@ -147,7 +148,14 @@ function App() {
         <button onClick={handleClearFile}>Clear File</button>
         {' '}
         {playerBlack} (B) vs {playerWhite} (W)
-        <button style={{ marginLeft: '50px' }}>50 Moves per Page</button>
+        <button style={{ marginLeft: '50px' }} onClick={() => {
+          const input = prompt(`Moves per page (default: ${DEFAULT_MOVE_STEP}):`)
+          if (input == null || input === '') return
+          const n = Number(input)
+          if (isNaN(n) || n <= 0) return
+          localStorage.setItem('moveStep', String(n))
+          location.reload()
+        }}>{MOVE_STEP} Moves per Page</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
