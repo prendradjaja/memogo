@@ -168,7 +168,7 @@ function App() {
   )
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ marginBottom: '10px' }}>
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
@@ -194,7 +194,7 @@ function App() {
             ))
           : <span style={{ fontSize: '1.3rem' }}>{'\u00a0'}</span>}
       </div>
-    </>
+    </div>
   )
 }
 
