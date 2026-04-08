@@ -86,7 +86,26 @@ function App() {
     return { moves, playerBlack, playerWhite }
   }, [sgfText])
 
-  const currentBoard = useMemo(() => replayUpTo(moves, moveIndex), [moves, moveIndex])
+  const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / MOVE_STEP) * MOVE_STEP : 0
+  const pageEnd = Math.min(moveIndex + MOVE_STEP, moves.length)
+
+  const { displaySignMap, annotations, repeats } = useMemo(() => {
+    const baseBoard = replayUpTo(moves, moveIndex)
+    const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
+    const grid: (string | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
+    const repeats: string[] = []
+    for (let i = moveIndex; i < pageEnd; i++) {
+      const [x, y] = moves[i].vertex
+      const label = String(i + 1)
+      if (grid[y][x] !== null) {
+        repeats.push(`${label} at ${grid[y][x]}`)
+      } else {
+        displaySignMap[y][x] = moves[i].sign
+        grid[y][x] = label
+      }
+    }
+    return { displaySignMap, annotations: grid, repeats }
+  }, [moves, moveIndex, pageEnd])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -95,23 +114,23 @@ function App() {
         if (input == null) return
         const n = Number(input)
         if (isNaN(n)) return
-        setMoveIndex(Math.max(0, Math.min(moves.length, n)))
+        setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor(n / MOVE_STEP) * MOVE_STEP)))
         return
       }
 
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
       if (e.altKey) {
-        setMoveIndex(e.key === 'ArrowLeft' ? 0 : moves.length)
+        setMoveIndex(e.key === 'ArrowLeft' ? 0 : maxMoveIndex)
       } else if (e.key === 'ArrowRight') {
-        setMoveIndex((i) => Math.min(moves.length, (Math.floor(i / MOVE_STEP) + 1) * MOVE_STEP))
+        setMoveIndex((i) => Math.min(maxMoveIndex, (Math.floor(i / MOVE_STEP) + 1) * MOVE_STEP))
       } else {
         setMoveIndex((i) => Math.max(0, (Math.ceil(i / MOVE_STEP) - 1) * MOVE_STEP))
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [moves.length])
+  }, [maxMoveIndex])
 
   const cellSize = 50
 
@@ -130,9 +149,13 @@ function App() {
         {playerBlack} (B) vs {playerWhite} (W)
       </div>
       <SimpleGoban
-        signMap={currentBoard.signMap}
+        signMap={displaySignMap}
         cellSize={cellSize}
+        annotations={annotations}
       />
+      {repeats.length > 0 && (
+        <div>{repeats.join(', ')}</div>
+      )}
     </>
   )
 }
