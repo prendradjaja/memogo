@@ -5,6 +5,8 @@ import * as sgf from '@sabaki/sgf'
 
 type Move = { sign: 1 | -1; vertex: [number, number] }
 
+const MOVE_STEP = 50
+
 interface SgfNode {
   id: number
   data: Record<string, string[]>
@@ -99,7 +101,7 @@ function App() {
 
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
-      const delta = (e.key === 'ArrowLeft' ? -1 : 1) * (e.shiftKey ? 10 : 1)
+      const delta = (e.key === 'ArrowLeft' ? -1 : 1) * MOVE_STEP
 
       if (e.altKey) {
         setMoveIndex(e.key === 'ArrowLeft' ? 0 : moves.length)
