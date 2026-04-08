@@ -45,13 +45,35 @@ function replayUpTo(moves: Move[], n: number): Board {
   return board
 }
 
+function encodeHash(text: string): string {
+  return encodeURIComponent(btoa(text))
+}
+
+function decodeHash(hash: string): string {
+  return atob(decodeURIComponent(hash))
+}
+
+function getInitialSgfText(): string | null {
+  const hash = location.hash.slice(1)
+  if (hash) {
+    return decodeHash(hash)
+  }
+  const stored = localStorage.getItem('sgf')
+  if (stored) {
+    location.hash = encodeHash(stored)
+    return stored
+  }
+  return null
+}
+
 function App() {
-  const [sgfText, setSgfText] = useState<string | null>(() => localStorage.getItem('sgf'))
+  const [sgfText, setSgfText] = useState<string | null>(getInitialSgfText)
   const [moveIndex, setMoveIndex] = useState(0)
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
       localStorage.setItem('sgf', text)
+      location.hash = encodeHash(text)
       setSgfText(text)
       setMoveIndex(0)
     })
