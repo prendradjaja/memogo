@@ -112,8 +112,6 @@ function App() {
   }, [moves.length])
 
   const cellSize = 50
-  const boardCols = currentBoard.signMap[0].length
-  const boardWidth = (boardCols - 1) * cellSize + cellSize
 
   if (!sgfText) return (
     <div>
@@ -133,16 +131,6 @@ function App() {
         signMap={currentBoard.signMap}
         cellSize={cellSize}
       />
-      <div>
-        <input
-          type="range"
-          min={0}
-          max={moves.length}
-          value={moveIndex}
-          onChange={(e) => setMoveIndex(Number(e.target.value))}
-          style={{ width: `${boardWidth}px` }}
-        />
-      </div>
     </>
   )
 }
