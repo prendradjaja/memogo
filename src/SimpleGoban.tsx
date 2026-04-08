@@ -88,7 +88,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
 
     // Annotations
     if (annotations) {
-      ctx.font = '22px sans-serif'
+      ctx.font = '25px sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       for (let y = 0; y < rows; y++) {
