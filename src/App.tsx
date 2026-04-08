@@ -85,6 +85,16 @@ function App() {
     location.reload()
   }
 
+  const handleDownloadSgf = () => {
+    const blob = new Blob([sgfText!], { type: 'application/x-go-sgf' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'game.sgf'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleMovesPerPage = () => {
     const input = prompt(`Moves per page (default: ${DEFAULT_MOVE_STEP}):`)
     if (input == null || input === '') return
@@ -201,6 +211,7 @@ function App() {
       <div style={{ marginBottom: '10px' }}>
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
+        <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
         <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{MOVE_STEP} moves per page</button>
       </div>
       <SimpleGoban
