@@ -81,6 +81,7 @@ function App() {
 
   const handleClearFile = () => {
     localStorage.removeItem('sgf')
+    location.hash = ''
     location.reload()
   }
 
