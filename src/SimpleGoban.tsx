@@ -48,14 +48,14 @@ export default function SimpleGoban({ signMap, cellSize = 30, annotations }: Sim
     ctx.lineWidth = 1
     ctx.beginPath()
     for (let x = 0; x < cols; x++) {
-      const px = padding + x * cellSize
-      ctx.moveTo(px, padding)
-      ctx.lineTo(px, padding + (rows - 1) * cellSize)
+      const px = Math.floor(padding + x * cellSize) + 0.5
+      ctx.moveTo(px, Math.floor(padding) + 0.5)
+      ctx.lineTo(px, Math.floor(padding + (rows - 1) * cellSize) + 0.5)
     }
     for (let y = 0; y < rows; y++) {
-      const py = padding + y * cellSize
-      ctx.moveTo(padding, py)
-      ctx.lineTo(padding + (cols - 1) * cellSize, py)
+      const py = Math.floor(padding + y * cellSize) + 0.5
+      ctx.moveTo(Math.floor(padding) + 0.5, py)
+      ctx.lineTo(Math.floor(padding + (cols - 1) * cellSize) + 0.5, py)
     }
     ctx.stroke()
 
