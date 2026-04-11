@@ -130,15 +130,16 @@ function App() {
   }, [sgfText])
 
   const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / MOVE_STEP) * MOVE_STEP : 0
-  const pageEnd = Math.min(moveIndex + MOVE_STEP, moves.length)
+  const displayMoveIndex = Math.round(moveIndex)
+  const pageEnd = Math.min(Math.round(moveIndex + MOVE_STEP), moves.length)
 
   const { displaySignMap, moveNumbers, footerMoves } = useMemo(() => {
-    const baseBoard = replayUpTo(moves, moveIndex)
+    const baseBoard = replayUpTo(moves, displayMoveIndex)
     const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
     const grid: (number | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
     // Moves that can't be shown on the board (stone already present), listed in the footer instead
     const footerMoves: { text: string; vertex: [number, number] }[] = []
-    for (let i = moveIndex; i < pageEnd; i++) {
+    for (let i = displayMoveIndex; i < pageEnd; i++) {
       const [x, y] = moves[i].vertex
       const label = i + 1
       if (grid[y][x] !== null) {
@@ -151,7 +152,7 @@ function App() {
       }
     }
     return { displaySignMap, moveNumbers: grid, footerMoves }
-  }, [moves, moveIndex, pageEnd])
+  }, [moves, displayMoveIndex, pageEnd])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -166,7 +167,7 @@ function App() {
 
       if (e.key === ' ' && !e.altKey) {
         e.preventDefault()
-        setMoveIndex((i) => Math.min(maxMoveIndex, (Math.floor(i / MOVE_STEP) + 1) * MOVE_STEP))
+        setMoveIndex((i) => Math.min(maxMoveIndex, i + MOVE_STEP))
         return
       }
 
@@ -175,9 +176,9 @@ function App() {
       if (e.altKey) {
         setMoveIndex(e.key === 'ArrowLeft' ? 0 : maxMoveIndex)
       } else if (e.key === 'ArrowRight') {
-        setMoveIndex((i) => Math.min(maxMoveIndex, (Math.floor(i / MOVE_STEP) + 1) * MOVE_STEP))
+        setMoveIndex((i) => Math.min(maxMoveIndex, i + MOVE_STEP))
       } else {
-        setMoveIndex((i) => Math.max(0, (Math.ceil(i / MOVE_STEP) - 1) * MOVE_STEP))
+        setMoveIndex((i) => Math.max(0, i - MOVE_STEP))
       }
     }
     window.addEventListener('keydown', handleKeyDown)
