@@ -213,7 +213,7 @@ function App() {
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
         <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
-        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{MOVE_STEP} moves per page</button>
+        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{MOVE_STEP} moves per page ({displayMoveIndex + 1} to {pageEnd})</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
