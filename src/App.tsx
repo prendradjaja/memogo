@@ -6,7 +6,6 @@ import * as sgf from '@sabaki/sgf'
 type Move = { sign: 1 | -1; vertex: [number, number] }
 
 const DEFAULT_MOVE_STEP = 25
-const MOVE_STEP = Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP
 
 interface SgfNode {
   id: number
@@ -69,6 +68,7 @@ function getInitialSgfText(): string | null {
 function App() {
   const [sgfText, setSgfText] = useState<string | null>(getInitialSgfText)
   const [moveIndex, setMoveIndex] = useState(0)
+  const [moveStep, setMoveStep] = useState(() => Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP)
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
@@ -101,7 +101,7 @@ function App() {
     const n = Number(input)
     if (isNaN(n) || n <= 0) return
     localStorage.setItem('moveStep', String(n))
-    location.reload()
+    setMoveStep(n)
   }
 
   useEffect(() => {
@@ -129,13 +129,13 @@ function App() {
     return { moves, playerBlack, playerWhite }
   }, [sgfText])
 
-  const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / MOVE_STEP) * MOVE_STEP : 0
+  const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / moveStep) * moveStep : 0
   const displayMoveIndex = Math.round(moveIndex)
-  const pageEnd = Math.min(Math.round(moveIndex + MOVE_STEP), moves.length)
+  const pageEnd = Math.min(Math.round(moveIndex + moveStep), moves.length)
 
   const goToMoveNumber = useCallback((n: number) => {
-    setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / MOVE_STEP) * MOVE_STEP)))
-  }, [maxMoveIndex])
+    setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / moveStep) * moveStep)))
+  }, [maxMoveIndex, moveStep])
 
   const { displaySignMap, moveNumbers, footerMoves } = useMemo(() => {
     const baseBoard = replayUpTo(moves, displayMoveIndex)
@@ -171,7 +171,7 @@ function App() {
 
       if (e.key === ' ' && !e.altKey) {
         e.preventDefault()
-        setMoveIndex((i) => Math.min(maxMoveIndex, i + MOVE_STEP))
+        setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep))
         return
       }
 
@@ -180,14 +180,14 @@ function App() {
       if (e.altKey) {
         setMoveIndex(e.key === 'ArrowLeft' ? 0 : maxMoveIndex)
       } else if (e.key === 'ArrowRight') {
-        setMoveIndex((i) => Math.min(maxMoveIndex, i + MOVE_STEP))
+        setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep))
       } else {
-        setMoveIndex((i) => Math.max(0, i - MOVE_STEP))
+        setMoveIndex((i) => Math.max(0, i - moveStep))
       }
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [maxMoveIndex, goToMoveNumber])
+  }, [maxMoveIndex, moveStep, goToMoveNumber])
 
   const [hoveredRepeatVertex, setHoveredRepeatVertex] = useState<[number, number] | null>(null)
 
@@ -217,7 +217,7 @@ function App() {
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
         <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
-        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{MOVE_STEP} moves per page ({displayMoveIndex + 1} to {pageEnd})</button>
+        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{moveStep} moves per page ({displayMoveIndex + 1} to {pageEnd})</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
