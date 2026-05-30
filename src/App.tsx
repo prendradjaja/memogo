@@ -6,6 +6,7 @@ import * as sgf from '@sabaki/sgf'
 type Move = { sign: 1 | -1; vertex: [number, number] }
 
 const DEFAULT_MOVE_STEP = 25
+const MOVE_STEP_OPTIONS = [1, 5, 12.5, 25, 50, 100, 999]
 
 interface SgfNode {
   id: number
@@ -95,18 +96,6 @@ function App() {
     URL.revokeObjectURL(url)
   }
 
-  const handleMovesPerPage = () => {
-    const input = prompt(`Moves per page (default: ${DEFAULT_MOVE_STEP}):`)
-    if (input == null || input === '') return
-    const n = Number(input)
-    if (isNaN(n) || n <= 0) return
-    localStorage.setItem('moveStep', String(n))
-    setMoveStep(n)
-    const newMaxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / n) * n : 0
-    const firstMoveOnPage = displayMoveIndex + 1
-    setMoveIndex(Math.max(0, Math.min(newMaxMoveIndex, Math.floor((firstMoveOnPage - 1) / n) * n)))
-  }
-
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => e.preventDefault()
     const handleDrop = (e: DragEvent) => {
@@ -135,6 +124,24 @@ function App() {
   const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / moveStep) * moveStep : 0
   const displayMoveIndex = Math.round(moveIndex)
   const pageEnd = Math.min(Math.round(moveIndex + moveStep), moves.length)
+
+  const changeMovesPerPage = useCallback((n: number) => {
+    localStorage.setItem('moveStep', String(n))
+    setMoveStep(n)
+    setMoveIndex((currentIndex) => {
+      const newMaxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / n) * n : 0
+      const firstMoveOnPage = Math.round(currentIndex) + 1
+      return Math.max(0, Math.min(newMaxMoveIndex, Math.floor((firstMoveOnPage - 1) / n) * n))
+    })
+  }, [moves.length])
+
+  const handleMovesPerPage = () => {
+    const input = prompt(`Moves per page (default: ${DEFAULT_MOVE_STEP}):`)
+    if (input == null || input === '') return
+    const n = Number(input)
+    if (isNaN(n) || n <= 0) return
+    changeMovesPerPage(n)
+  }
 
   const goToMoveNumber = useCallback((n: number) => {
     setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / moveStep) * moveStep)))
@@ -178,6 +185,18 @@ function App() {
         return
       }
 
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        if (e.key === 'ArrowUp') {
+          const next = MOVE_STEP_OPTIONS.find(o => o > moveStep) ?? moveStep
+          changeMovesPerPage(next)
+        } else {
+          const prev = [...MOVE_STEP_OPTIONS].reverse().find(o => o < moveStep) ?? moveStep
+          changeMovesPerPage(prev)
+        }
+        return
+      }
+
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
       if (e.altKey) {
@@ -190,7 +209,7 @@ function App() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [maxMoveIndex, moveStep, goToMoveNumber])
+  }, [maxMoveIndex, moveStep, goToMoveNumber, changeMovesPerPage])
 
   const [hoveredRepeatVertex, setHoveredRepeatVertex] = useState<[number, number] | null>(null)
 
