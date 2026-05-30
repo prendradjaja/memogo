@@ -102,6 +102,9 @@ function App() {
     if (isNaN(n) || n <= 0) return
     localStorage.setItem('moveStep', String(n))
     setMoveStep(n)
+    const newMaxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / n) * n : 0
+    const firstMoveOnPage = displayMoveIndex + 1
+    setMoveIndex(Math.max(0, Math.min(newMaxMoveIndex, Math.floor((firstMoveOnPage - 1) / n) * n)))
   }
 
   useEffect(() => {
