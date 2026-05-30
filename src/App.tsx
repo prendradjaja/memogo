@@ -133,6 +133,10 @@ function App() {
   const displayMoveIndex = Math.round(moveIndex)
   const pageEnd = Math.min(Math.round(moveIndex + MOVE_STEP), moves.length)
 
+  const goToMoveNumber = useCallback((n: number) => {
+    setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / MOVE_STEP) * MOVE_STEP)))
+  }, [maxMoveIndex])
+
   const { displaySignMap, moveNumbers, footerMoves } = useMemo(() => {
     const baseBoard = replayUpTo(moves, displayMoveIndex)
     const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
@@ -161,7 +165,7 @@ function App() {
         if (input == null) return
         const n = Number(input)
         if (isNaN(n)) return
-        setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / MOVE_STEP) * MOVE_STEP)))
+        goToMoveNumber(n)
         return
       }
 
@@ -183,7 +187,7 @@ function App() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [maxMoveIndex])
+  }, [maxMoveIndex, goToMoveNumber])
 
   const [hoveredRepeatVertex, setHoveredRepeatVertex] = useState<[number, number] | null>(null)
 
