@@ -240,6 +240,8 @@ function App() {
         {playerBlack} (B) vs {playerWhite} (W)
         <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
         <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{moveStep} moves per page ({displayMoveIndex + 1} to {pageEnd})</button>
+        <button onClick={() => setMoveIndex((i) => Math.max(0, i - moveStep))} style={{ marginLeft: '10px' }}>{'<'}</button>
+        <button onClick={() => setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep))}>{'>'}</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
