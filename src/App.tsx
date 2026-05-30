@@ -161,7 +161,7 @@ function App() {
         if (input == null) return
         const n = Number(input)
         if (isNaN(n)) return
-        setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor(n / MOVE_STEP) * MOVE_STEP)))
+        setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / MOVE_STEP) * MOVE_STEP)))
         return
       }
 
