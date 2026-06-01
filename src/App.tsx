@@ -233,13 +233,19 @@ function App() {
     </div>
   )
 
+  const movesWord = moveStep !== 1 ? 'moves' : 'move'
+  let movesPerPageButtonText = `${moveStep} ${movesWord} per page`
+  if (moveStep !== 1) {
+    movesPerPageButtonText += ` (${displayMoveIndex + 1} to ${pageEnd})`
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ marginBottom: '10px' }}>
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
         <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
-        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{moveStep} moves per page ({displayMoveIndex + 1} to {pageEnd})</button>
+        <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{movesPerPageButtonText}</button>
         <button onClick={() => setMoveIndex((i) => Math.max(0, i - moveStep))} style={{ marginLeft: '10px' }}>{'<'}</button>
         <button onClick={() => setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep))}>{'>'}</button>
       </div>
