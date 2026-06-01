@@ -46,7 +46,12 @@ function replayUpTo(moves: Move[], n: number): Board {
 }
 
 function encodeHash(text: string): string {
-  return encodeURIComponent(btoa(text))
+  try {
+    return encodeURIComponent(btoa(text))
+  } catch {
+    // e.g. if the SGF contains characters btoa() can't handle
+    return ''
+  }
 }
 
 function decodeHash(hash: string): string {
