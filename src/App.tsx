@@ -63,11 +63,6 @@ function getInitialSgfText(): string | null {
   if (hash) {
     return decodeHash(hash)
   }
-  const stored = localStorage.getItem('sgf')
-  if (stored) {
-    location.hash = encodeHash(stored)
-    return stored
-  }
   return null
 }
 
@@ -78,7 +73,6 @@ function App() {
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
-      localStorage.setItem('sgf', text)
       location.hash = encodeHash(text)
       setSgfText(text)
       setMoveIndex(0)
@@ -86,7 +80,6 @@ function App() {
   }
 
   const handleClearFile = () => {
-    localStorage.removeItem('sgf')
     location.hash = ''
     location.reload()
   }
