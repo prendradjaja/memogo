@@ -144,7 +144,7 @@ function App() {
     changeMovesPerPage(n)
   }
 
-  const handleCustomRange = () => {
+  const handleCustomRange = useCallback(() => {
     const input = prompt('Move number range (e.g. 12-20):')
     if (input == null) return
     const match = input.trim().match(/^(\d+)-(\d+)$/)
@@ -160,7 +160,7 @@ function App() {
     }
     setMoveIndex(start - 1)
     setCustomPageEnd(end)
-  }
+  }, [moves.length])
 
   const goToMoveNumber = useCallback((n: number) => {
     setMoveIndex(Math.max(0, Math.min(maxMoveIndex, Math.floor((n - 1) / moveStep) * moveStep)))
@@ -198,6 +198,11 @@ function App() {
         return
       }
 
+      if (e.key === 'c') {
+        handleCustomRange()
+        return
+      }
+
       if (e.key === ' ' && !e.altKey) {
         e.preventDefault()
         setCustomPageEnd(null)
@@ -230,7 +235,7 @@ function App() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [maxMoveIndex, moveStep, goToMoveNumber, changeMovesPerPage])
+  }, [maxMoveIndex, moveStep, goToMoveNumber, changeMovesPerPage, handleCustomRange])
 
   const [hoveredRepeatVertex, setHoveredRepeatVertex] = useState<[number, number] | null>(null)
 
