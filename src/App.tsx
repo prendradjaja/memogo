@@ -70,6 +70,7 @@ function App() {
   const [sgfText, setSgfText] = useState<string | null>(getInitialSgfText)
   const [moveIndex, setMoveIndex] = useState(0)
   const [moveStep, setMoveStep] = useState(() => Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP)
+  const [customPageEnd, setCustomPageEnd] = useState<number | null>(null)
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
@@ -121,7 +122,9 @@ function App() {
 
   const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / moveStep) * moveStep : 0
   const displayMoveIndex = Math.round(moveIndex)
-  const pageEnd = Math.min(Math.round(moveIndex + moveStep), moves.length)
+  const pageEnd = customPageEnd !== null
+    ? Math.min(customPageEnd, moves.length)
+    : Math.min(Math.round(moveIndex + moveStep), moves.length)
 
   const changeMovesPerPage = useCallback((n: number) => {
     localStorage.setItem('moveStep', String(n))
@@ -139,6 +142,24 @@ function App() {
     const n = Number(input)
     if (isNaN(n) || n <= 0) return
     changeMovesPerPage(n)
+  }
+
+  const handleCustomRange = () => {
+    const input = prompt('Move number range (e.g. 12-20):')
+    if (input == null) return
+    const match = input.trim().match(/^(\d+)-(\d+)$/)
+    if (!match) {
+      alert('Invalid format. Expected a range like 12-20.')
+      return
+    }
+    const start = Number(match[1])
+    const end = Number(match[2])
+    if (start < 1 || end < start || end > moves.length) {
+      alert('Invalid range.')
+      return
+    }
+    setMoveIndex(start - 1)
+    setCustomPageEnd(end)
   }
 
   const goToMoveNumber = useCallback((n: number) => {
@@ -179,6 +200,7 @@ function App() {
 
       if (e.key === ' ' && !e.altKey) {
         e.preventDefault()
+        setCustomPageEnd(null)
         setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep))
         return
       }
@@ -197,6 +219,7 @@ function App() {
 
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
       e.preventDefault()
+      setCustomPageEnd(null)
       if (e.altKey) {
         setMoveIndex(e.key === 'ArrowLeft' ? 0 : maxMoveIndex)
       } else if (e.key === 'ArrowRight') {
@@ -244,8 +267,9 @@ function App() {
         {playerBlack} (B) vs {playerWhite} (W)
         <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
         <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{movesPerPageButtonText}</button>
-        <button onClick={() => setMoveIndex((i) => Math.max(0, i - moveStep))} style={{ marginLeft: '10px' }}>{'<'}</button>
-        <button onClick={() => setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep))}>{'>'}</button>
+        <button onClick={handleCustomRange} style={{ marginLeft: '10px' }}>C</button>
+        <button onClick={() => { setCustomPageEnd(null); setMoveIndex((i) => Math.max(0, i - moveStep)); }} style={{ marginLeft: '10px' }}>{'<'}</button>
+        <button onClick={() => { setCustomPageEnd(null); setMoveIndex((i) => Math.min(maxMoveIndex, i + moveStep)); }}>{'>'}</button>
       </div>
       <SimpleGoban
         signMap={displaySignMap}
