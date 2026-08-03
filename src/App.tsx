@@ -73,7 +73,7 @@ function App() {
   const [moveStep, setMoveStep] = useState(() => Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP)
   const [customPageEnd, setCustomPageEnd] = useState<number | null>(null)
   const [colorScheme, setColorScheme] = useState<ColorScheme>(
-    () => (localStorage.getItem('colorScheme') === 'board' ? 'board' : 'kifu')
+    () => (localStorage.getItem('colorScheme') === 'kifu' ? 'kifu' : 'board')
   )
   const [rotated, setRotated] = useState(false)
   const [showCoordinates, setShowCoordinates] = useState(
