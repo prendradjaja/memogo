@@ -67,10 +67,11 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
   const cols = signMap[0].length
   const padding = cellSize * 0.6
   const coordPadding = showCoordinates ? cellSize * 0.7 : 0
-  const paddingX = padding + coordPadding
-  const paddingY = padding + coordPadding
-  const width = (cols - 1) * cellSize + padding * 2 + coordPadding * 2
-  const height = (rows - 1) * cellSize + padding * 2 + coordPadding * 2
+  const canvasPadding = showCoordinates ? cellSize * 0.2 : 0
+  const paddingX = padding + coordPadding + canvasPadding
+  const paddingY = padding + coordPadding + canvasPadding
+  const width = (cols - 1) * cellSize + padding * 2 + coordPadding * 2 + canvasPadding * 2
+  const height = (rows - 1) * cellSize + padding * 2 + coordPadding * 2 + canvasPadding * 2
   const toScreenX = (x: number) => (rotate180 ? cols - 1 - x : x)
   const toScreenY = (y: number) => (rotate180 ? rows - 1 - y : y)
 
@@ -170,23 +171,23 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
-      const topLetterY = coordPadding / 2
-      const bottomLetterY = height - coordPadding / 2
+      const topLetterY = canvasPadding + coordPadding / 2
+      const bottomLetterY = height - canvasPadding - coordPadding / 2
       for (let x = 0; x < cols; x++) {
         const cx = Math.floor(paddingX + toScreenX(x) * cellSize) + 0.5
         ctx.fillText(xToLetter(x), cx, topLetterY)
         ctx.fillText(xToLetter(x), cx, bottomLetterY)
       }
 
-      const leftNumberX = coordPadding / 2
-      const rightNumberX = width - coordPadding / 2
+      const leftNumberX = canvasPadding + coordPadding / 2
+      const rightNumberX = width - canvasPadding - coordPadding / 2
       for (let y = 0; y < rows; y++) {
         const cy = Math.floor(paddingY + toScreenY(y) * cellSize) + 0.5
         ctx.fillText(String(rows - y), leftNumberX, cy)
         ctx.fillText(String(rows - y), rightNumberX, cy)
       }
     }
-  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, paddingX, paddingY, coordPadding, width, height, colors, rotate180, showCoordinates])
+  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, paddingX, paddingY, coordPadding, canvasPadding, width, height, colors, rotate180, showCoordinates])
 
   useEffect(() => {
     draw()
