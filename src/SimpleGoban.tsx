@@ -25,7 +25,7 @@ const COLOR_SCHEMES: Record<ColorScheme, {
     blackFill: '#111',
     blackStroke: '#000',
     whiteFill: '#fff',
-    whiteStroke: '#fff',
+    whiteStroke: '#8B4513',
   },
 }
 
