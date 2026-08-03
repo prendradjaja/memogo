@@ -282,9 +282,9 @@ function App() {
       <div style={{ marginBottom: '10px' }}>
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
-        <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
-        <button onClick={handleToggleColorScheme} style={{ marginLeft: '10px' }}>
-          {colorScheme === 'kifu' ? 'Kifu colors' : 'Board colors'}
+        <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>SGF</button>
+        <button onClick={handleToggleColorScheme} style={{ marginLeft: '50px' }}>
+          Colors
         </button>
         <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{movesPerPageButtonText}</button>
         <button onClick={handleCustomRange} style={{ marginLeft: '10px' }}>C</button>
