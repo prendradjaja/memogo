@@ -311,6 +311,7 @@ function App() {
         symbols={symbols}
         colorScheme={colorScheme}
         rotate180={rotated}
+        showCoordinates
       />
       <div style={{ marginTop: 10 }}>
         {footerMoves.length > 0
