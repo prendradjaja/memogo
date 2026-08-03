@@ -75,6 +75,7 @@ function App() {
   const [colorScheme, setColorScheme] = useState<ColorScheme>(
     () => (localStorage.getItem('colorScheme') === 'board' ? 'board' : 'kifu')
   )
+  const [rotated, setRotated] = useState(false)
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
@@ -105,6 +106,10 @@ function App() {
       localStorage.setItem('colorScheme', next)
       return next
     })
+  }
+
+  const handleToggleRotate = () => {
+    setRotated((current) => !current)
   }
 
   useEffect(() => {
@@ -286,6 +291,9 @@ function App() {
         <button onClick={handleToggleColorScheme} style={{ marginLeft: '50px' }}>
           Colors
         </button>
+        <button onClick={handleToggleRotate} style={{ marginLeft: '10px' }}>
+          Flip
+        </button>
         <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{movesPerPageButtonText}</button>
         <button onClick={handleCustomRange} style={{ marginLeft: '10px' }}>C</button>
         <button onClick={() => { setCustomPageEnd(null); setMoveIndex((i) => Math.max(0, i - moveStep)); }} style={{ marginLeft: '10px' }}>{'<'}</button>
@@ -297,6 +305,7 @@ function App() {
         moveNumbers={moveNumbers}
         symbols={symbols}
         colorScheme={colorScheme}
+        rotate180={rotated}
       />
       <div style={{ marginTop: 10 }}>
         {footerMoves.length > 0

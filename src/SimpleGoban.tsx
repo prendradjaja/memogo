@@ -50,9 +50,10 @@ interface SimpleGobanProps {
   moveNumbers?: (number | null)[][]
   symbols?: ('t' | 's' | null)[][]
   colorScheme?: ColorScheme
+  rotate180?: boolean
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbols, colorScheme = 'kifu' }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbols, colorScheme = 'kifu', rotate180 = false }: SimpleGobanProps) {
   const colors = COLOR_SCHEMES[colorScheme]
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
@@ -60,6 +61,8 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
   const padding = cellSize * 0.6
   const width = (cols - 1) * cellSize + padding * 2
   const height = (rows - 1) * cellSize + padding * 2
+  const toScreenX = (x: number) => (rotate180 ? cols - 1 - x : x)
+  const toScreenY = (y: number) => (rotate180 ? rows - 1 - y : y)
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current
@@ -92,7 +95,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
     ctx.fillStyle = colors.line
     for (const [x, y] of starPoints) {
       ctx.beginPath()
-      ctx.arc(Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5, cellSize * 0.12, 0, Math.PI * 2)
+      ctx.arc(Math.floor(padding + toScreenX(x) * cellSize) + 0.5, Math.floor(padding + toScreenY(y) * cellSize) + 0.5, cellSize * 0.12, 0, Math.PI * 2)
       ctx.fill()
     }
 
@@ -102,8 +105,8 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
       for (let x = 0; x < cols; x++) {
         const sign = signMap[y][x]
         if (sign === 0) continue
-        const cx = Math.floor(padding + x * cellSize) + 0.5
-        const cy = Math.floor(padding + y * cellSize) + 0.5
+        const cx = Math.floor(padding + toScreenX(x) * cellSize) + 0.5
+        const cy = Math.floor(padding + toScreenY(y) * cellSize) + 0.5
         ctx.beginPath()
         ctx.arc(cx, cy, r, 0, Math.PI * 2)
         ctx.fillStyle = sign === 1 ? colors.blackFill : colors.whiteFill
@@ -119,8 +122,8 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
       for (let x = 0; x < cols; x++) {
         const symbol = symbols?.[y]?.[x]
         const label = moveNumbers?.[y]?.[x]
-        const cx = Math.floor(padding + x * cellSize) + 0.5
-        const cy = Math.floor(padding + y * cellSize) + 0.5
+        const cx = Math.floor(padding + toScreenX(x) * cellSize) + 0.5
+        const cy = Math.floor(padding + toScreenY(y) * cellSize) + 0.5
         const sign = signMap[y][x]
         const color = sign === 1 ? '#fff' : '#111'
 
@@ -149,7 +152,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
         }
       }
     }
-  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, width, height, colors])
+  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, width, height, colors, rotate180])
 
   useEffect(() => {
     draw()
