@@ -144,7 +144,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
           ctx.lineWidth = 1.5
           ctx.strokeRect(cx - s, cy - s, s * 2, s * 2)
         } else if (label != null) {
-          ctx.font = '25px sans-serif'
+          ctx.font = '24px sans-serif'
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
           ctx.fillStyle = color
