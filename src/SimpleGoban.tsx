@@ -1,8 +1,33 @@
 import { useRef, useEffect, useCallback } from 'react'
 import type { SignMap } from '@sabaki/go-board'
 
-const BOARD_COLOR = 'white'
-const LINE_COLOR = 'black'
+export type ColorScheme = 'kifu' | 'board'
+
+const COLOR_SCHEMES: Record<ColorScheme, {
+  board: string
+  line: string
+  blackFill: string
+  blackStroke: string
+  whiteFill: string
+  whiteStroke: string
+}> = {
+  kifu: {
+    board: 'white',
+    line: 'black',
+    blackFill: '#000',
+    blackStroke: '#000',
+    whiteFill: '#fff',
+    whiteStroke: '#000',
+  },
+  board: {
+    board: '#DEB887',
+    line: '#8B4513',
+    blackFill: '#111',
+    blackStroke: '#000',
+    whiteFill: '#fff',
+    whiteStroke: '#fff',
+  },
+}
 
 function getStarPoints(size: number): [number, number][] {
   if (size === 19) {
@@ -24,9 +49,11 @@ interface SimpleGobanProps {
   cellSize?: number
   moveNumbers?: (number | null)[][]
   symbols?: ('t' | 's' | null)[][]
+  colorScheme?: ColorScheme
 }
 
-export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbols }: SimpleGobanProps) {
+export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbols, colorScheme = 'kifu' }: SimpleGobanProps) {
+  const colors = COLOR_SCHEMES[colorScheme]
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const rows = signMap.length
   const cols = signMap[0].length
@@ -41,11 +68,11 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
     if (!ctx) return
 
     // Board background
-    ctx.fillStyle = BOARD_COLOR
+    ctx.fillStyle = colors.board
     ctx.fillRect(0, 0, width, height)
 
     // Grid lines
-    ctx.strokeStyle = LINE_COLOR
+    ctx.strokeStyle = colors.line
     ctx.lineWidth = 1
     ctx.beginPath()
     for (let x = 0; x < cols; x++) {
@@ -62,7 +89,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
 
     // Star points
     const starPoints = getStarPoints(Math.min(rows, cols))
-    ctx.fillStyle = LINE_COLOR
+    ctx.fillStyle = colors.line
     for (const [x, y] of starPoints) {
       ctx.beginPath()
       ctx.arc(Math.floor(padding + x * cellSize) + 0.5, Math.floor(padding + y * cellSize) + 0.5, cellSize * 0.12, 0, Math.PI * 2)
@@ -79,9 +106,9 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
         const cy = Math.floor(padding + y * cellSize) + 0.5
         ctx.beginPath()
         ctx.arc(cx, cy, r, 0, Math.PI * 2)
-        ctx.fillStyle = sign === 1 ? '#000' : '#fff'
+        ctx.fillStyle = sign === 1 ? colors.blackFill : colors.whiteFill
         ctx.fill()
-        ctx.strokeStyle = sign === 1 ? '#000' : 'fff'
+        ctx.strokeStyle = sign === 1 ? colors.blackStroke : colors.whiteStroke
         ctx.lineWidth = 1
         ctx.stroke()
       }
@@ -122,7 +149,7 @@ export default function SimpleGoban({ signMap, cellSize = 30, moveNumbers, symbo
         }
       }
     }
-  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, width, height])
+  }, [signMap, cellSize, moveNumbers, symbols, rows, cols, padding, width, height, colors])
 
   useEffect(() => {
     draw()

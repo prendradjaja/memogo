@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import SimpleGoban from './SimpleGoban'
+import type { ColorScheme } from './SimpleGoban'
 import Board from '@sabaki/go-board'
 import * as sgf from '@sabaki/sgf'
 
@@ -71,6 +72,9 @@ function App() {
   const [moveIndex, setMoveIndex] = useState(0)
   const [moveStep, setMoveStep] = useState(() => Number(localStorage.getItem('moveStep')) || DEFAULT_MOVE_STEP)
   const [customPageEnd, setCustomPageEnd] = useState<number | null>(null)
+  const [colorScheme, setColorScheme] = useState<ColorScheme>(
+    () => (localStorage.getItem('colorScheme') === 'board' ? 'board' : 'kifu')
+  )
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
@@ -93,6 +97,14 @@ function App() {
     a.download = 'game.sgf'
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  const handleToggleColorScheme = () => {
+    setColorScheme((current) => {
+      const next = current === 'kifu' ? 'board' : 'kifu'
+      localStorage.setItem('colorScheme', next)
+      return next
+    })
   }
 
   useEffect(() => {
@@ -271,6 +283,9 @@ function App() {
         <button onClick={handleClearFile} style={{ marginRight: '10px' }}>-</button>
         {playerBlack} (B) vs {playerWhite} (W)
         <button onClick={handleDownloadSgf} style={{ marginLeft: '50px' }}>Download SGF</button>
+        <button onClick={handleToggleColorScheme} style={{ marginLeft: '10px' }}>
+          {colorScheme === 'kifu' ? 'Kifu colors' : 'Board colors'}
+        </button>
         <button onClick={handleMovesPerPage} style={{ marginLeft: '50px' }}>{movesPerPageButtonText}</button>
         <button onClick={handleCustomRange} style={{ marginLeft: '10px' }}>C</button>
         <button onClick={() => { setCustomPageEnd(null); setMoveIndex((i) => Math.max(0, i - moveStep)); }} style={{ marginLeft: '10px' }}>{'<'}</button>
@@ -281,6 +296,7 @@ function App() {
         cellSize={cellSize}
         moveNumbers={moveNumbers}
         symbols={symbols}
+        colorScheme={colorScheme}
       />
       <div style={{ marginTop: 10 }}>
         {footerMoves.length > 0
