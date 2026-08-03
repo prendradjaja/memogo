@@ -220,6 +220,11 @@ function App() {
         return
       }
 
+      if (e.key === 'f') {
+        handleToggleRotate()
+        return
+      }
+
       if (e.key === ' ' && !e.altKey) {
         e.preventDefault()
         setCustomPageEnd(null)
@@ -252,7 +257,7 @@ function App() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [maxMoveIndex, moveStep, goToMoveNumber, changeMovesPerPage, handleCustomRange])
+  }, [maxMoveIndex, moveStep, goToMoveNumber, changeMovesPerPage, handleCustomRange, handleToggleRotate])
 
   const [hoveredRepeatVertex, setHoveredRepeatVertex] = useState<[number, number] | null>(null)
 
