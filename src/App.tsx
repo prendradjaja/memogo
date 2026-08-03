@@ -76,6 +76,9 @@ function App() {
     () => (localStorage.getItem('colorScheme') === 'board' ? 'board' : 'kifu')
   )
   const [rotated, setRotated] = useState(false)
+  const [showCoordinates, setShowCoordinates] = useState(
+    () => localStorage.getItem('showCoordinates') === 'true'
+  )
 
   const loadFile = (file: File) => {
     file.text().then((text) => {
@@ -110,6 +113,14 @@ function App() {
 
   const handleToggleRotate = () => {
     setRotated((current) => !current)
+  }
+
+  const handleToggleShowCoordinates = () => {
+    setShowCoordinates((current) => {
+      const next = !current
+      localStorage.setItem('showCoordinates', String(next))
+      return next
+    })
   }
 
   useEffect(() => {
@@ -296,6 +307,9 @@ function App() {
         <button onClick={handleToggleColorScheme} style={{ marginLeft: '50px' }}>
           Colors
         </button>
+        <button onClick={handleToggleShowCoordinates} style={{ marginLeft: '10px' }}>
+          Coords
+        </button>
         <button onClick={handleToggleRotate} style={{ marginLeft: '10px' }}>
           Flip
         </button>
@@ -311,7 +325,7 @@ function App() {
         symbols={symbols}
         colorScheme={colorScheme}
         rotate180={rotated}
-        showCoordinates
+        showCoordinates={showCoordinates}
       />
       <div style={{ marginTop: 10 }}>
         {footerMoves.length > 0
