@@ -38,8 +38,26 @@ function extractMoves(rootNode: SgfNode): Move[] {
   return moves
 }
 
-function replayUpTo(moves: Move[], n: number): Board {
+function extractSetupStones(rootNode: SgfNode): Move[] {
+  const stones: Move[] = []
+
+  for (const s of rootNode.data.AB || []) {
+    const vertex = sgf.parseVertex(s) as [number, number]
+    if (vertex[0] >= 0 && vertex[1] >= 0) stones.push({ sign: 1, vertex })
+  }
+  for (const s of rootNode.data.AW || []) {
+    const vertex = sgf.parseVertex(s) as [number, number]
+    if (vertex[0] >= 0 && vertex[1] >= 0) stones.push({ sign: -1, vertex })
+  }
+
+  return stones
+}
+
+function replayUpTo(setupStones: Move[], moves: Move[], n: number): Board {
   let board = Board.fromDimensions(19)
+  for (const stone of setupStones) {
+    board = board.set(stone.vertex, stone.sign)
+  }
   for (let i = 0; i < n; i++) {
     board = board.makeMove(moves[i].sign, moves[i].vertex)
   }
@@ -138,14 +156,15 @@ function App() {
     }
   }, [])
 
-  const { moves, playerBlack, playerWhite } = useMemo(() => {
-    if (!sgfText) return { moves: [] as Move[], playerBlack: 'Unknown', playerWhite: 'Unknown' }
+  const { moves, setupStones, playerBlack, playerWhite } = useMemo(() => {
+    if (!sgfText) return { moves: [] as Move[], setupStones: [] as Move[], playerBlack: 'Unknown', playerWhite: 'Unknown' }
     const rootNodes = sgf.parse(sgfText) as SgfNode[]
     const root = rootNodes[0]
     const moves = extractMoves(root)
+    const setupStones = extractSetupStones(root)
     const playerBlack = root.data.PB?.[0] || 'Unknown'
     const playerWhite = root.data.PW?.[0] || 'Unknown'
-    return { moves, playerBlack, playerWhite }
+    return { moves, setupStones, playerBlack, playerWhite }
   }, [sgfText])
 
   const maxMoveIndex = moves.length > 0 ? Math.floor((moves.length - 1) / moveStep) * moveStep : 0
@@ -195,7 +214,7 @@ function App() {
   }, [maxMoveIndex, moveStep])
 
   const { displaySignMap, moveNumbers, footerMoves } = useMemo(() => {
-    const baseBoard = replayUpTo(moves, displayMoveIndex)
+    const baseBoard = replayUpTo(setupStones, moves, displayMoveIndex)
     const displaySignMap = baseBoard.signMap.map(row => [...row]) as (0 | 1 | -1)[][]
     const grid: (number | null)[][] = Array.from({ length: 19 }, () => Array(19).fill(null))
     // Moves that can't be shown on the board (stone already present), listed in the footer instead
@@ -213,7 +232,7 @@ function App() {
       }
     }
     return { displaySignMap, moveNumbers: grid, footerMoves }
-  }, [moves, displayMoveIndex, pageEnd])
+  }, [setupStones, moves, displayMoveIndex, pageEnd])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
